@@ -39,7 +39,7 @@ Das Projekt befindet sich aktuell in der aktiven Entwicklung (Backend-Fokus).
 
 1.  **Repository klonen:**
     ```bash
-    git clone [https://github.com/oezcanyildiz/teamsync.git](https://github.com/oezcanyildiz/teamsync.git)
+    git clone https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung
     ```
 2.  **Datenbank konfigurieren:**
     Passen Sie die `application.properties` an Ihre lokale PostgreSQL-Instanz an oder nutzen Sie die bereitgestellte `docker-compose.yml`.
