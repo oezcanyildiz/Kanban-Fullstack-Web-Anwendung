@@ -46,9 +46,4 @@ public class OrganizationRegisterService implements IOrganizationRegisterService
 		
 		return organizationMapper.toRegisterResponse(savedOrganization);
 	}
-	
-	
-	
-	
-	
 }
