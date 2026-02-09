@@ -24,7 +24,10 @@ public class Organization extends BaseEntity {
     private Long organizationID;
 	
     @Column(nullable = false, unique = true) 
-    private String name;
+    private String organizationName;
+    
+    @Column(nullable = false, unique = true) 
+    private String organizationEmail;
     
     @Column(nullable=false, unique=true)
     private String invitationCode;
