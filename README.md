@@ -13,8 +13,8 @@ Dieses Projekt fokussiert sich bewusst auf anspruchsvolle Backend-Logiken und ge
 ## 🛠 Tech-Stack
 
 ### Backend
-* **Java 17:** Einsatz moderner Sprachfeatures.
-* **Spring Boot 3:** Nutzung von Spring Data JPA, Spring Security und WebSockets.
+* **Java 21:** Einsatz moderner Sprachfeatures.
+* **Spring Boot 4.0.2:** Nutzung von Spring Data JPA, Spring Security und WebSockets.
 * **PostgreSQL:** Relationales Datenbankdesign und performante Datenhaltung.
 * **Hibernate / JPA:** Effizientes Object-Relational Mapping (ORM).
 
@@ -30,8 +30,8 @@ Die Anwendung folgt einer strikten **3-Tier-Architektur** (Controller, Service, 
 ## 🚦 Projektstatus
 
 Das Projekt befindet sich aktuell in der aktiven Entwicklung (Backend-Fokus).
-* **Abgeschlossen:** Core-Backend-Struktur, relationales Datenbank-Schema, Sicherheitskonzept.
-* **In Arbeit:** Verfeinerung der Echtzeit-Synchronisation für großflächige Team-Workspaces.
+### * **Abgeschlossen:** Core-Backend-Struktur, relationales Datenbank-Schema, Sicherheitskonzept.
+###* **In Arbeit:** Verfeinerung der Echtzeit-Synchronisation für großflächige Team-Workspaces.
 
 ---
 
