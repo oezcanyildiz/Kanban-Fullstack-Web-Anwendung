@@ -41,9 +41,7 @@ Das Projekt befindet sich aktuell in der aktiven Entwicklung (Backend-Fokus).
     ```bash
     git clone https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung
     ```
-2.  **Datenbank konfigurieren:**
-    Passen Sie die `application.properties` an Ihre lokale PostgreSQL-Instanz an oder nutzen Sie die bereitgestellte `docker-compose.yml`.
-3.  **Anwendung starten:**
+2.  **Anwendung starten:**
     ```bash
     mvn spring-boot:run
     ```# Kanban-Fullstack-Web-Anwendung
