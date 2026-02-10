@@ -4,18 +4,19 @@
 
 ## 🚀 Kern-Features & Backend-Komplexität
 
-Dieses Projekt fokussiert sich bewusst auf anspruchsvolle Backend-Logiken und geschäftskritische Funktionen:
+Dieses Projekt fokussiert sich auf fortgeschrittene Architektur-Muster, insbesondere die Absicherung von Echtzeit-Kommunikation:
 
-* **Real-Time Architecture:** Implementierung einer ereignisgesteuerten Synchronisation mittels **Spring WebSockets (STOMP)**, um Datenkonflikte bei parallelen Zugriffen mehrerer Nutzer zu vermeiden.
-* **Granular Security:** Entwurf eines detaillierten Berechtigungskonzepts (**Role-Based Access Control - RBAC**) mit **Spring Security**, das Zugriffsrechte dynamisch auf Workspace- und Board-Ebene validiert.
-* **Automated Testing:** Absicherung der Business-Logic durch eine umfassende Test-Suite mit **JUnit 5 und Mockito**, um eine hohe Software-Qualität zu gewährleisten.
-
+* **Secure Real-Time Architecture:** Implementierung einer ereignisgesteuerten Synchronisation mittels **Spring WebSockets (STOMP)**. Besonderer Fokus liegt auf der **Zustandsverwaltung** und der Vermeidung von Race Conditions bei parallelen Zugriffen.
+* **JWT over WebSockets:** Da Standard-WebSocket-Verbindungen keine Header wie klassische REST-Calls unterstützen, wurde eine sichere Lösung zur **Token-Validierung beim Handshake und Channel-Interception** implementiert, um JWT-basierte Authentifizierung auch im Echtzeit-Stream zu gewährleisten.
+* **Granular Security (RBAC):** Ein detailliertes Berechtigungskonzept mit **Spring Security**, das Zugriffsrechte dynamisch auf Workspace- und Board-Ebene validiert, bevor Nachrichten über den Message Broker verteilt werden.
+* **Automated Testing:** Absicherung der geschäftskritischen Logik durch eine umfassende Test-Suite mit **JUnit 5 und Mockito**.
 ## 🛠 Tech-Stack
 
 ### Backend
-* **Java 17:** Einsatz moderner Sprachfeatures.
-* **Spring Boot 3:** Nutzung von Spring Data JPA, Spring Security und WebSockets.
-* **PostgreSQL:** Relationales Datenbankdesign und performante Datenhaltung.
+* **Java 21:** Nutzung moderner Sprachfeatures und funktionaler Programmierung.
+* **Spring Boot 4.0.2:** Fullstack-Backend mit Spring Data JPA, Spring Security und WebSockets.
+* **JSON Web Tokens (JWT):** Sicherer, zustandsloser Authentifizierungsmechanismus.
+* **PostgreSQL:** Relationales Datenbankdesign mit Fokus auf Datenintegrität.
 * **Hibernate / JPA:** Effizientes Object-Relational Mapping (ORM).
 
 ### DevOps & Tools
@@ -26,12 +27,11 @@ Dieses Projekt fokussiert sich bewusst auf anspruchsvolle Backend-Logiken und ge
 ## 🏗 Architektur
 
 Die Anwendung folgt einer strikten **3-Tier-Architektur** (Controller, Service, Repository), um eine saubere Trennung von Geschäftslogik und Datenhaltung zu garantieren. Besonderer Wert wurde auf die Anwendung von Design Patterns und MVC-Strukturen gelegt.
-
 ## 🚦 Projektstatus
 
 Das Projekt befindet sich aktuell in der aktiven Entwicklung (Backend-Fokus).
-* **Abgeschlossen:** Core-Backend-Struktur, relationales Datenbank-Schema, Sicherheitskonzept.
-* **In Arbeit:** Verfeinerung der Echtzeit-Synchronisation für großflächige Team-Workspaces.
+### * **Abgeschlossen:** Core-Backend, relationales Datenbank-Schema, JWT-Infrastruktur.
+### * **In Arbeit:** Optimierung der WebSocket-Interceptors für die Token-Validierung und Real-Time-Synchronisation.
 
 ---
 
@@ -39,11 +39,9 @@ Das Projekt befindet sich aktuell in der aktiven Entwicklung (Backend-Fokus).
 
 1.  **Repository klonen:**
     ```bash
-    git clone [https://github.com/oezcanyildiz/teamsync.git](https://github.com/oezcanyildiz/teamsync.git)
+    git clone https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung
     ```
-2.  **Datenbank konfigurieren:**
-    Passen Sie die `application.properties` an Ihre lokale PostgreSQL-Instanz an oder nutzen Sie die bereitgestellte `docker-compose.yml`.
-3.  **Anwendung starten:**
+2.  **Anwendung starten:**
     ```bash
     mvn spring-boot:run
     ```https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung# Kanban-Fullstack-Web-Anwendung
