@@ -10,6 +10,7 @@ import com.yildiz.teamsync.dto.UserRegisterRequestDTO;
 import com.yildiz.teamsync.dto.UserRegisterResponseDTO;
 import com.yildiz.teamsync.entities.Organization;
 import com.yildiz.teamsync.entities.User;
+import com.yildiz.teamsync.enums.UserRole;
 import com.yildiz.teamsync.mappers.UserMapper;
 import com.yildiz.teamsync.repositories.OrganizationRepository;
 import com.yildiz.teamsync.repositories.UserRepository;
@@ -71,6 +72,14 @@ public class AuthService implements IAuthService{
 		User user = userMapper.toEntity(registerdto);
 		user.setUserPassword(passwordEncoder.encode(registerdto.getUserPassword()));
 		user.setOrganization(organization);
+		
+		// Wenn die Organisation noch keine User hat, ist der erste der Admin
+		if (userRepository.countByOrganization(organization) == 0) {
+		    user.setRole(UserRole.ORG_ADMIN);
+		} else {
+		    user.setRole(UserRole.USER);
+		}
+		
 		User savedUser= userRepository.save(user);
 		UserRegisterResponseDTO responsedto=userMapper.toRegisterResponse(savedUser);
 		return responsedto;

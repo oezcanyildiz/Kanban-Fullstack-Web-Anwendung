@@ -17,5 +17,4 @@ public class OrganizationResponseDTO {
 	
     private String invitationCode;
 
-
 }

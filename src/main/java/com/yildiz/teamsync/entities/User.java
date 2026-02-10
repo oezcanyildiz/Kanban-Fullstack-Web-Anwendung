@@ -1,7 +1,11 @@
 package com.yildiz.teamsync.entities;
 
+import com.yildiz.teamsync.enums.UserRole;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,4 +45,7 @@ public class User extends BaseEntity{
     @JoinColumn(name = "organization_id", nullable = false) 
     private Organization organization;
 	
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
 }
