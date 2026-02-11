@@ -1,5 +1,7 @@
 package com.yildiz.teamsync.services.impl;
 
-public class UserService {
+import com.yildiz.teamsync.services.IUserService;
+
+public class UserService implements IUserService {
 
 }

@@ -23,5 +23,4 @@ public class Board extends BaseEntity{
 	@JoinColumn(name="team_id", nullable = false)
 	private Team team;
 	
-	
 }

@@ -1,5 +1,7 @@
 package com.yildiz.teamsync.services.impl;
 
-public class TaskServices {
+import com.yildiz.teamsync.services.ITaskService;
+
+public class TaskServices implements ITaskService {
 
 }

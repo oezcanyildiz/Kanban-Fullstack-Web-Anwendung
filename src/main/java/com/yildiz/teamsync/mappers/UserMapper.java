@@ -1,8 +1,11 @@
 package com.yildiz.teamsync.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.yildiz.teamsync.dto.UserListResponseDTO;
 import com.yildiz.teamsync.dto.UserLoginResponseDTO;
 import com.yildiz.teamsync.dto.UserRegisterRequestDTO;
 import com.yildiz.teamsync.dto.UserRegisterResponseDTO;
@@ -23,7 +26,11 @@ public interface UserMapper {
     @Mapping(target = "jwtToken", ignore = true)
     UserLoginResponseDTO toLoginResponse(User user);
     
-    // 4. PROFIL: Entity -> Response (Falls du später eine Profil-Seite hast)
+    // 4. PROFIL: Entity -> Response 
     // UserProfileResponseDTO toProfileResponse(User user);
 
+    @Mapping(target = "organizationID", source = "organization.organizationID")
+    UserListResponseDTO toListResponse(User user);
+    
+    List<UserListResponseDTO> toListResponseList(List<User> users);
 }
