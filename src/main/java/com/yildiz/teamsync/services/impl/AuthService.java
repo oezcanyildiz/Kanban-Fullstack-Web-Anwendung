@@ -65,7 +65,10 @@ public class AuthService implements IAuthService{
 	public UserRegisterResponseDTO userRegister(UserRegisterRequestDTO registerdto) {
 		String code = registerdto.getInvitationCode();
 		String userEmail = registerdto.getUserEmail().trim().toLowerCase();
-		Organization organization = organizationRepository.findByinvitationCode(code).orElseThrow(() -> new RuntimeException("dieser Organization wurde nicht gefunden!"));	
+		
+		Organization organization = organizationRepository.findByinvitationCode(code)
+				.orElseThrow(() -> new RuntimeException("dieser Organization wurde nicht gefunden!"));	
+		
 		if (userRepository.findByUserEmail(userEmail).isPresent()) {
 			throw new IllegalArgumentException("Mit dieser Email existiert schon ein Account.");
 		}

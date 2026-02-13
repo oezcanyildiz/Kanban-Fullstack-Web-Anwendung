@@ -2,6 +2,8 @@ package com.yildiz.teamsync.services.impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.yildiz.teamsync.dto.UserListResponseDTO;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
@@ -10,6 +12,7 @@ import com.yildiz.teamsync.mappers.UserMapper;
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IOrganizationManagementService;
 
+@Service
 public class OrganizationManagementService implements IOrganizationManagementService {
 	
 	private final UserRepository userRepository;
@@ -71,7 +74,6 @@ public class OrganizationManagementService implements IOrganizationManagementSer
 		User currentAdmin = getAuthenticatedUser();
 	    Long adminOrgID = currentAdmin.getOrganization().getOrganizationID();
 	    
-
 	    User user = userRepository.findById(userID)
 	            .orElseThrow(() -> new RuntimeException("User nicht gefunden."));
 

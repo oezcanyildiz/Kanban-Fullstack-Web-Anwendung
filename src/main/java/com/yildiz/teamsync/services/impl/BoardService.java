@@ -4,10 +4,12 @@ package com.yildiz.teamsync.services.impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yildiz.teamsync.dto.BoardCreateRequestDTO;
 import com.yildiz.teamsync.dto.BoardCreateResponseDTO;
+import com.yildiz.teamsync.dto.BoardListResponseDTO;
 import com.yildiz.teamsync.dto.BoardUpdateRequestDTO;
 import com.yildiz.teamsync.dto.BoardUpdateResponseDTO;
 import com.yildiz.teamsync.entities.Board;
@@ -21,7 +23,7 @@ import com.yildiz.teamsync.repositories.BoardRepository;
 import com.yildiz.teamsync.repositories.TeamRepository;
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IBoardService;
-
+@Service
 public class BoardService implements IBoardService{
 	
 	private final TeamRepository teamRepository;
@@ -75,8 +77,6 @@ public class BoardService implements IBoardService{
 	        column.setWipLimit(10); 
 	        boardColumnRepository.save(column);
 	    }
-
-
 	    return boardMapper.toCreateResponse(savedBoard);
 	}
 	
@@ -103,10 +103,61 @@ public class BoardService implements IBoardService{
         }
 
         boardMapper.updateEntityFromDto(updateddto, board);
-        
         return boardMapper.toUpdateResponse(boardRepository.save(board));
     }
     
+	///////////////////////////////
+	///                         ///
+	///          LESEN          ///
+	///                         ///
+	///////////////////////////////
+	@Override
+	@Transactional(readOnly = true)
+	public BoardCreateResponseDTO getBoardDetails(Long boardID) {
+	    Board board = boardRepository.findById(boardID)
+	            .orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
+
+	    User currentUser = getAuthenticatedUser();
+
+	    // PRÜFUNG: Gehört der User zur selben Organisation wie das Team des Boards?
+	    // Wir vergleichen die IDs der Organisationen
+	    boolean sameOrganization = currentUser.getOrganization().getOrganizationID()
+	            .equals(board.getTeam().getOrganization().getOrganizationID());
+	    
+	 // 1. Die Berechtigungen berechnen
+	    boolean isAdmin = currentUser.getRole() == UserRole.ORG_ADMIN;
+	    boolean isTeamOwner = board.getTeam().getOwner().getUserID().equals(currentUser.getUserID());
+
+	    // 2. Der optimierte Check
+	    // Wenn er Admin oder Owner ist, ist die Organisation egal (da er sowieso Rechte hat).
+	    // Wenn er keines von beiden ist, MUSS er zumindest in der selben Organisation sein.
+	    if (isAdmin || isTeamOwner || sameOrganization) {
+	        return boardMapper.toCreateResponse(board);
+	    } else {
+	        throw new RuntimeException("Zugriff verweigert: Sie haben keine Berechtigung für dieses Board.");
+	    }
+	}
+	
+	///////////////////////////////
+	///                         ///
+	///   Listen von Baords     ///
+	///                         ///
+	///////////////////////////////
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<BoardListResponseDTO> getMyBoards() {
+	    User currentUser = getAuthenticatedUser();
+	    
+	    // Wir holen alle Boards der Organisation des Users
+	    List<Board> boards = boardRepository.findAllByTeam_Organization_OrganizationID(
+	        currentUser.getOrganization().getOrganizationID()
+	    );
+	    
+	    return boardMapper.toListResponseList(boards);
+	}
+	
+	
     ///////////////////////////////
     ///							///
     ///     HILFSMETHODEN  		///

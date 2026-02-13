@@ -1,0 +1,105 @@
+Implementation Plan - Project Analysis & Enhancement
+This plan outlines the steps to analyze the current project state, implement missing JWT security and Controllers, and polish the codebase to be suitable for a Junior Developer portfolio application.
+
+User Review Required
+IMPORTANT
+
+Spring Boot 4.0.2: The project uses Spring Boot 4.0.2. Ensure compatibility of JWT libraries. Secret Key: A secure secret key for JWT signing should be configured in application.properties (or environment variables) and NOT hardcoded in production. For this portfolio, we will use a configured property with a default.
+
+Proposed Changes
+Project Analysis (For Junior Application)
+I will summarize my findings in a separate 
+project_analysis.md
+ artifact, highlighting:
+
+ Code Structure & Quality
+ Modern Practices (Java 21, Spring Boot 3+)
+ Logic Gaps (Security, Validation)
+ Recommendations (Tests, logging, API Documentation)
+Phase 1: Secure Core (v1)
+Service Implementation com.yildiz.teamsync.services
+[NEW] 
+TaskService.java
+Implement ITaskService.
+methods: createTask, updateTask, deleteTask, getTasksByBoard.
+data persistence via TaskRepository.
+[NEW] 
+UserService.java
+Implement IUserService.
+methods: getUserDetails, updateUser.
+[NEW] 
+BoardColumnService.java
+CRUD for Board Columns.
+Controller Implementation com.yildiz.teamsync.controllers
+[MODIFY] 
+AuthController.java
+Inject IAuthService and JwtService.
+POST /auth/register: Calls authService.userRegister.
+POST /auth/login: Calls authService.userLogin, then generates JWT, returns response with Token.
+[NEW] 
+BoardController.java
+REST endpoints for Boards.
+GET, POST, PUT, DELETE mapping to IBoardService.
+[NEW] 
+TaskController.java
+REST endpoints for Tasks.
+GET, POST, PUT, DELETE mapping to ITaskService.
+Dependencies 
+pom.xml
+[MODIFY] 
+pom.xml
+Add jjwt-api, jjwt-impl, jjwt-jackson dependencies.
+Security Implementation com.yildiz.teamsync.security
+[NEW] 
+JwtService.java
+Generate Token (with claims, expiration).
+Validate Token.
+Extract Username.
+[NEW] 
+JwtAuthenticationFilter.java
+Intercepts requests.
+Checks Authorization header.
+Validates token using JwtService.
+Sets SecurityContext.
+[MODIFY] 
+SecurityConfig.java
+Configure SecurityFilterChain.
+Disable CSRF (for stateless API).
+Configure Session Management (Stateless).
+Add JwtAuthenticationFilter before UsernamePasswordAuthenticationFilter.
+Define public endpoints (/auth/**).
+Exception Handling com.yildiz.teamsync.exception
+[NEW] 
+GlobalExceptionHandler.java
+@ControllerAdvice to handle RuntimeException, IllegalArgumentException, etc.
+Return structured Error Response.
+Phase 2: Real-time Collaboration (v2)
+Real-time Chat com.yildiz.teamsync.chat
+[NEW] 
+ChatMessage.java
+Entity to store chat history (content, sender, boardId/organizationId, timestamp).
+[NEW] 
+ChatController.java
+@MessageMapping("/chat.sendMessage")
+@SendTo("/topic/public") (or specific board topic).
+Saves message to DB via Service.
+Refactoring & Quality
+[NEW] 
+GlobalExceptionHandler.java
+@ControllerAdvice to handle RuntimeException, IllegalArgumentException, etc.
+Return structured Error Response.
+Verification Plan
+Automated Tests
+Run mvn test to ensure existing context loads and simple tests pass.
+Since we are modifying 
+pom.xml
+, we must verify the build compiles:
+mvn clean compile
+Manual Verification
+We can mock a login flow since we don't have a frontend running yet.
+Expected flow:
+Start Application.
+POST /auth/register -> Success.
+POST /auth/login -> Returns JWT.
+GET /api/boards (without token) -> 403 Forbidden.
+GET /api/boards (with token) -> 200 OK (empty list or data).
