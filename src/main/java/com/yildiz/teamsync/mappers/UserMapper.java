@@ -35,7 +35,7 @@ public interface UserMapper {
 
     // 5. UPDATE: Bestehenden User mit DTO-Daten aktualisieren
     @Mapping(target = "userID", ignore = true)        // ID bleibt gleich
-    @Mapping(target = "userName", ignore = true)     // VORNAME WIRD IGNORIERT
+    @Mapping(target = "userName", ignore = true)      // VORNAME WIRD IGNORIERT
     @Mapping(target = "role", ignore = true)          // Rolle darf User nicht selbst ändern
     @Mapping(target = "organization", ignore = true)  // Org bleibt gleich
     @Mapping(target = "userPassword", ignore = true)  // Passwort machen wir manuell im Service

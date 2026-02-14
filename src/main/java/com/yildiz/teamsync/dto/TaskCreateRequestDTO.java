@@ -1,6 +1,8 @@
 package com.yildiz.teamsync.dto;
 
 
+import com.yildiz.teamsync.enums.TaskPriority;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,16 +17,15 @@ import lombok.Setter;
 public class TaskCreateRequestDTO {
 	
 
-	@NotBlank(message = "Der Task Title darf nicht leer sein.")
-    private String boardTaskTitle;
+	@NotBlank(message = "Der Titel darf nicht leer sein.")
+    private String title;
 
-    @NotBlank(message = "Die Beschreibung darf nicht leer sein.")
-    private String boardTaskDescription;
+    private String description;
     
     @NotNull(message = "Die Spalten-ID muss angegeben werden.")
-    private Long columnID; // Damit wir wissen, wo der Task landet!
+    private Long columnID;
 
-    @NotNull(message = "Die Position darf nicht leer sein.")
-    private Integer position;
+    @NotNull(message = "Bitte gib eine Priorität an.")
+    private TaskPriority priority;
 
 }

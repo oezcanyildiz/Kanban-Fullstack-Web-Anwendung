@@ -23,6 +23,11 @@ public class UserService implements IUserService {
 		this.passwordEncoder =passwordEncoder;
 	}
 
+    ///////////////////////////////
+    ///							///
+    ///         UPDATE  		///
+    ///							///
+    ///////////////////////////////
 	@Override
 	public UserProfileResponseDTO updateProfile(UserProfileRequestDTO requestdto) {
 		User currentUser = getAuthenticatedUser();

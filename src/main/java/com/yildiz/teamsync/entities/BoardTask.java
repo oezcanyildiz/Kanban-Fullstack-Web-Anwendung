@@ -1,5 +1,7 @@
 package com.yildiz.teamsync.entities;
 
+import com.yildiz.teamsync.enums.TaskPriority;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +26,10 @@ public class BoardTask extends BaseEntity {
 	
 	@Column(nullable=false)
 	private Integer	position;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "priority", nullable = false)
+	private TaskPriority priority = TaskPriority.MEDIUM; // Default-Wert
 	
 	@Column(nullable = false)
 	private boolean deleted=false;

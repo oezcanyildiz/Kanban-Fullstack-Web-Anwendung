@@ -7,4 +7,5 @@ import com.yildiz.teamsync.entities.BoardTask;
 @Repository
 public interface BoardTaskRepository extends JpaRepository<BoardTask, Long>{
 
+	long countByBoardColumn_BoardColumnID(Long columnID);
 }
