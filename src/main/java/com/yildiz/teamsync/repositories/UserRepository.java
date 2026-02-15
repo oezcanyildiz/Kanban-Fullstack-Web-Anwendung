@@ -19,4 +19,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUserIDAndOrganization_OrganizationID(Long userID, Long organizationID);
 
+    // Findet User, deren Username den Suchbegriff enthält
+    List<User> findByUsernameContainingIgnoreCase(String username);
+
+    // Oder Suche nach E-Mail (oft noch besser)
+    Optional<User> findByEmail(String email);
 }
