@@ -11,7 +11,7 @@ import com.yildiz.teamsync.dto.UserRegisterResponseDTO;
 import com.yildiz.teamsync.entities.Organization;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-import com.yildiz.teamsync.mappers.UserMapper;
+
 import com.yildiz.teamsync.repositories.OrganizationRepository;
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IAuthService;
@@ -22,17 +22,12 @@ public class AuthService implements IAuthService{
 	private final UserRepository userRepository;
 	private final OrganizationRepository organizationRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final UserMapper userMapper;
-	
-
 	public AuthService(UserRepository userRepository,
 			PasswordEncoder passwordEncoder, 
-			UserMapper userMapper,
 			OrganizationRepository organizationRepository
 			) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.userMapper= userMapper;
 		this.organizationRepository=organizationRepository;
 	}
 	
@@ -51,7 +46,11 @@ public class AuthService implements IAuthService{
 		if(!passwordEncoder.matches(passwordeingabe, user.getUserPassword())) {
 			throw new IllegalArgumentException("Ungültiges Passwords");
 		}		
-		UserLoginResponseDTO responseDTO = userMapper.toLoginResponse(user);	
+		UserLoginResponseDTO responseDTO = new UserLoginResponseDTO();
+		responseDTO.setUserEmail(user.getUserEmail());
+		responseDTO.setUserName(user.getUserName());
+		// jwtToken will be handled elsewhere or left null according to the original dto
+		
 		return responseDTO;
 	}
 
@@ -72,7 +71,11 @@ public class AuthService implements IAuthService{
 		if (userRepository.findByUserEmail(userEmail).isPresent()) {
 			throw new IllegalArgumentException("Mit dieser Email existiert schon ein Account.");
 		}
-		User user = userMapper.toEntity(registerdto);
+		User user = new User();
+		user.setUserName(registerdto.getUserName());
+		user.setUserLastName(registerdto.getUserLastName());
+		user.setUserEmail(registerdto.getUserEmail());
+		// Password and Org are handled manually already
 		user.setUserPassword(passwordEncoder.encode(registerdto.getUserPassword()));
 		user.setOrganization(organization);
 		
@@ -84,7 +87,11 @@ public class AuthService implements IAuthService{
 		}
 		
 		User savedUser= userRepository.save(user);
-		UserRegisterResponseDTO responsedto=userMapper.toRegisterResponse(savedUser);
+		
+		UserRegisterResponseDTO responsedto = new UserRegisterResponseDTO();
+		responsedto.setUserEmail(savedUser.getUserEmail());
+		// message is ignored or null according to original dto
+		
 		return responsedto;
 	}
 }

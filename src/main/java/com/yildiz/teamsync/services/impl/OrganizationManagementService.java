@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import com.yildiz.teamsync.dto.UserListResponseDTO;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-import com.yildiz.teamsync.mappers.UserMapper;
 
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IOrganizationManagementService;
@@ -17,12 +16,8 @@ public class OrganizationManagementService implements IOrganizationManagementSer
 	
 	private final UserRepository userRepository;
 
-	private final UserMapper userMapper;
-	
-	public OrganizationManagementService(UserRepository userRepository ,  UserMapper userMapper) {
+	public OrganizationManagementService(UserRepository userRepository) {
 		this.userRepository=userRepository;
-
-		this.userMapper=userMapper;
 	}
 
     ///////////////////////////////
@@ -39,7 +34,19 @@ public class OrganizationManagementService implements IOrganizationManagementSer
 	        throw new RuntimeException("Keine Mitarbeiter für diese Organisation gefunden.");
 	    }
 	    
-	    return userMapper.toListResponseList(users);
+	    return users.stream().map(user -> {
+	        UserListResponseDTO dto = new UserListResponseDTO();
+	        dto.setUserID(user.getUserID());
+	        dto.setUserName(user.getUserName());
+	        dto.setUserLastName(user.getUserLastName());
+	        dto.setUserEmail(user.getUserEmail());
+	        dto.setOnline(user.isOnline());
+	        dto.setRole(user.getRole());
+	        if (user.getOrganization() != null) {
+	            dto.setOrganizationID(user.getOrganization().getOrganizationID());
+	        }
+	        return dto;
+	    }).toList();
 	}
 
     ///////////////////////////////

@@ -11,7 +11,7 @@ import com.yildiz.teamsync.entities.Board;
 import com.yildiz.teamsync.entities.BoardColumn;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-import com.yildiz.teamsync.mappers.BoardColumnMapper;
+
 import com.yildiz.teamsync.repositories.BoardColumnRepository;
 import com.yildiz.teamsync.repositories.BoardRepository;
 import com.yildiz.teamsync.repositories.UserRepository;
@@ -23,14 +23,11 @@ public class BoardColumnService implements IBoardColumnService{
 	private final BoardColumnRepository boardColumnRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
-    private final BoardColumnMapper boardColumnMapper;
-
     public BoardColumnService(BoardColumnRepository boardColumnRepository, BoardRepository boardRepository, 
-                              UserRepository userRepository, BoardColumnMapper boardColumnMapper) {
+                              UserRepository userRepository) {
         this.boardColumnRepository = boardColumnRepository;
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
-        this.boardColumnMapper = boardColumnMapper;
     }
 
 	@Override
@@ -45,14 +42,25 @@ public class BoardColumnService implements IBoardColumnService{
         if (currentColumns >= 8) {
             throw new RuntimeException("Maximale Anzahl von 8 Spalten erreicht!");
         }
-        BoardColumn column = boardColumnMapper.toEntity(createdto);
+        BoardColumn column = new BoardColumn();
+        column.setColumnTitle(createdto.getColumnTitle());
+        column.setWipLimit(createdto.getWipLimit());
         
         column.setBoard(board);
         column.setColumnPosition((int) currentColumns);
         
         BoardColumn savedColumn = boardColumnRepository.save(column);
         
-        return boardColumnMapper.toResponse(savedColumn);
+        BoardColumnCreateResponseDTO responseDTO = new BoardColumnCreateResponseDTO();
+        responseDTO.setBoardColumnID(savedColumn.getBoardColumnID());
+        responseDTO.setColumnTitle(savedColumn.getColumnTitle());
+        responseDTO.setColumnPosition(savedColumn.getColumnPosition());
+        responseDTO.setWipLimit(savedColumn.getWipLimit());
+        if (savedColumn.getBoard() != null) {
+            responseDTO.setBoardID(savedColumn.getBoard().getBoardID());
+        }
+        
+        return responseDTO;
 	}
 
 	@Override
@@ -63,9 +71,22 @@ public class BoardColumnService implements IBoardColumnService{
 		User currentUser = getAuthenticatedUser();
 	    checkPermission(column.getBoard(), currentUser);
 	    
-	    boardColumnMapper.updateEntityFromDto(updatedto, column);
+	    column.setColumnTitle(updatedto.getColumnTitle());
+	    column.setColumnPosition(updatedto.getColumnPosition());
+	    column.setWipLimit(updatedto.getWipLimit());
+
 	    BoardColumn updatedColumn=boardColumnRepository.save(column);
-		return boardColumnMapper.toUpdateResponse(updatedColumn);
+	    
+	    BoardColumnUpdateResponseDTO responseDTO = new BoardColumnUpdateResponseDTO();
+	    responseDTO.setBoardColumnID(updatedColumn.getBoardColumnID());
+	    responseDTO.setColumnTitle(updatedColumn.getColumnTitle());
+	    responseDTO.setColumnPosition(updatedColumn.getColumnPosition());
+	    responseDTO.setWipLimit(updatedColumn.getWipLimit());
+	    if (updatedColumn.getBoard() != null) {
+	        responseDTO.setBoardID(updatedColumn.getBoard().getBoardID());
+	    }
+	    
+		return responseDTO;
 	}
 
 	@Override

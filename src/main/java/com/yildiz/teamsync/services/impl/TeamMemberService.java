@@ -32,7 +32,7 @@ public class TeamMemberService implements ITeamMemberService {
         // 1. Team und den aktuell eingeloggten User (Leader/Admin) holen
         Team team = teamRepository.findById(requestdto.getTeamID())
                 .orElseThrow(() -> new RuntimeException("Team nicht gefunden!"));
-        
+
         User currentUser = getAuthenticatedUser(); // Die Hilfsmethode von gestern
 
         // 2. BERECHTIGUNGSPRÜFUNG
@@ -46,7 +46,7 @@ public class TeamMemberService implements ITeamMemberService {
         // 3. PRÜFUNG: Ist der neue Mitarbeiter schon im Team?
         boolean alreadyMember = teamMemberRepository.existsByTeam_TeamIDAndUser_UserID(
                 requestdto.getTeamID(), requestdto.getUserID());
-        
+
         if (alreadyMember) {
             throw new RuntimeException("Dieser User ist bereits Mitglied im Team.");
         }
@@ -64,19 +64,20 @@ public class TeamMemberService implements ITeamMemberService {
     }
 
     private User getAuthenticatedUser() {
-        // Hier später die echte Security-Logik. Für jetzt nehmen wir ID 1 (Admin/Leader)
+        // Hier später die echte Security-Logik. Für jetzt nehmen wir ID 1
+        // (Admin/Leader)
         return userRepository.findById(1L).orElseThrow();
     }
 
-	@Override
-	public List<UserSearchResponseDTO> searchUsers(String query) {
-		if (query == null || query.length() < 3) {
-	        return List.of(); // Suche erst ab 3 Zeichen starten (Performance!)
-	    }
-	    
-	    return userRepository.findByUsernameContainingIgnoreCase(query)
-	            .stream()
-	            .map(user -> new UserSearchResponseDTO(user.getUserID(), user.getUserName(), user.getUserEmail()))
-	            .collect(Collectors.toList());
-	}
+    @Override
+    public List<UserSearchResponseDTO> searchUsers(String query) {
+        if (query == null || query.length() < 3) {
+            return List.of(); // Suche erst ab 3 Zeichen starten (Performance!)
+        }
+
+        return userRepository.findByUserNameContainingIgnoreCase(query)
+                .stream()
+                .map(user -> new UserSearchResponseDTO(user.getUserID(), user.getUserName(), user.getUserEmail()))
+                .collect(Collectors.toList());
+    }
 }

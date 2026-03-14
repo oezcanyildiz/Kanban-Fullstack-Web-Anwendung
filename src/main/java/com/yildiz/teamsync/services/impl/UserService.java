@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.yildiz.teamsync.dto.UserProfileRequestDTO;
 import com.yildiz.teamsync.dto.UserProfileResponseDTO;
 import com.yildiz.teamsync.entities.User;
-import com.yildiz.teamsync.mappers.UserMapper;
+
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IUserService;
 
@@ -14,12 +14,10 @@ import com.yildiz.teamsync.services.IUserService;
 public class UserService implements IUserService {
 	
 	public final UserRepository userRepository;
-	public final UserMapper userMapper;
 	private final PasswordEncoder passwordEncoder;
 	
-	public UserService (UserRepository userRepository , UserMapper userMapper,PasswordEncoder passwordEncoder) {
+	public UserService (UserRepository userRepository , PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
-		this.userMapper=userMapper;
 		this.passwordEncoder =passwordEncoder;
 	}
 
@@ -39,9 +37,17 @@ public class UserService implements IUserService {
 			}
 			user.setUserPassword(passwordEncoder.encode(requestdto.getUserPassword()));
 		}
-		userMapper.updateEntityFromDto(requestdto, user);
+		user.setUserEmail(requestdto.getUserEmail());
+		user.setUserLastName(requestdto.getUserLastName());
 		
-		return userMapper.toProfileResponse(userRepository.save(user));
+		User savedUser = userRepository.save(user);
+		
+		UserProfileResponseDTO responseDTO = new UserProfileResponseDTO();
+		responseDTO.setUserName(savedUser.getUserName());
+		responseDTO.setUserLastName(savedUser.getUserLastName());
+		responseDTO.setUserEmail(savedUser.getUserEmail());
+		
+		return responseDTO;
 	}
 
     ///////////////////////////////

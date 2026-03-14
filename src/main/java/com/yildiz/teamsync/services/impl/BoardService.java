@@ -17,7 +17,7 @@ import com.yildiz.teamsync.entities.BoardColumn;
 import com.yildiz.teamsync.entities.Team;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-import com.yildiz.teamsync.mappers.BoardMapper;
+
 import com.yildiz.teamsync.repositories.BoardColumnRepository;
 import com.yildiz.teamsync.repositories.BoardRepository;
 import com.yildiz.teamsync.repositories.TeamRepository;
@@ -28,13 +28,11 @@ public class BoardService implements IBoardService{
 	
 	private final TeamRepository teamRepository;
 	private final BoardRepository boardRepository;
-	private final BoardMapper boardMapper;
 	private final UserRepository userRepository;
 	private final BoardColumnRepository boardColumnRepository;
 	
-	public BoardService(TeamRepository teamRepository, BoardMapper boardMapper, BoardRepository boardRepository, UserRepository userRepository, BoardColumnRepository boardColumnRepository) {
+	public BoardService(TeamRepository teamRepository, BoardRepository boardRepository, UserRepository userRepository, BoardColumnRepository boardColumnRepository) {
 		this.teamRepository = teamRepository;
-		this.boardMapper = boardMapper;
 		this.boardRepository=boardRepository;
 		this.userRepository =userRepository;
 		this.boardColumnRepository=boardColumnRepository;
@@ -61,8 +59,8 @@ public class BoardService implements IBoardService{
 	        throw new RuntimeException("Keine Berechtigung, ein Board für dieses Team zu erstellen.");
 	    }
 
-	    // 2. Das Board erstellen und speichern
-	    Board board = boardMapper.toEntity(createdto);
+	    Board board = new Board();
+	    board.setBoardName(createdto.getBoardName());
 	    board.setTeam(team);
 	    Board savedBoard = boardRepository.save(board);
 
@@ -77,7 +75,10 @@ public class BoardService implements IBoardService{
 	        column.setWipLimit(10); 
 	        boardColumnRepository.save(column);
 	    }
-	    return boardMapper.toCreateResponse(savedBoard);
+	    BoardCreateResponseDTO responseDTO = new BoardCreateResponseDTO();
+	    responseDTO.setBoardID(savedBoard.getBoardID());
+	    responseDTO.setBoardName(savedBoard.getBoardName());
+	    return responseDTO;
 	}
 	
 	
@@ -102,8 +103,13 @@ public class BoardService implements IBoardService{
             throw new RuntimeException("Nur der Admin oder Team-Owner darf das Board bearbeiten.");
         }
 
-        boardMapper.updateEntityFromDto(updateddto, board);
-        return boardMapper.toUpdateResponse(boardRepository.save(board));
+        board.setBoardName(updateddto.getNewBoardName());
+        Board savedBoard = boardRepository.save(board);
+        
+        BoardUpdateResponseDTO responseDTO = new BoardUpdateResponseDTO();
+        responseDTO.setBoardID(savedBoard.getBoardID());
+        responseDTO.setBoardName(savedBoard.getBoardName());
+        return responseDTO;
     }
     
 	///////////////////////////////
@@ -132,7 +138,10 @@ public class BoardService implements IBoardService{
 	    // Wenn er Admin oder Owner ist, ist die Organisation egal (da er sowieso Rechte hat).
 	    // Wenn er keines von beiden ist, MUSS er zumindest in der selben Organisation sein.
 	    if (isAdmin || isTeamOwner || sameOrganization) {
-	        return boardMapper.toCreateResponse(board);
+	        BoardCreateResponseDTO responseDTO = new BoardCreateResponseDTO();
+	        responseDTO.setBoardID(board.getBoardID());
+	        responseDTO.setBoardName(board.getBoardName());
+	        return responseDTO;
 	    } else {
 	        throw new RuntimeException("Zugriff verweigert: Sie haben keine Berechtigung für dieses Board.");
 	    }
@@ -154,7 +163,15 @@ public class BoardService implements IBoardService{
 	        currentUser.getOrganization().getOrganizationID()
 	    );
 	    
-	    return boardMapper.toListResponseList(boards);
+	    return boards.stream().map(board -> {
+	        BoardListResponseDTO dto = new BoardListResponseDTO();
+	        dto.setBoardID(board.getBoardID());
+	        dto.setBoardName(board.getBoardName());
+	        if (board.getTeam() != null) {
+	            dto.setTeamName(board.getTeam().getTeamName());
+	        }
+	        return dto;
+	    }).toList();
 	}
 	
 	

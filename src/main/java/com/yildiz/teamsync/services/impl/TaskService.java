@@ -13,7 +13,7 @@ import com.yildiz.teamsync.entities.BoardTask;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
 
-import com.yildiz.teamsync.mappers.TaskMapper;
+
 import com.yildiz.teamsync.repositories.BoardColumnRepository;
 import com.yildiz.teamsync.repositories.BoardTaskRepository;
 import com.yildiz.teamsync.repositories.TeamMemberRepository;
@@ -24,19 +24,15 @@ import com.yildiz.teamsync.services.ITaskService;
 public class TaskService implements ITaskService {
 	
 	private final BoardColumnRepository boardColumnRepository;
-
     private final UserRepository userRepository;
-    private final TaskMapper taskMapper;
     private final BoardTaskRepository taskRepository;
     private final TeamMemberRepository teamMemberRepository;
-    
 
     public TaskService(BoardColumnRepository boardColumnRepository, 
-                              UserRepository userRepository, TaskMapper taskMapper, BoardTaskRepository taskRepository, TeamMemberRepository teamMemberRepository) {
+                              UserRepository userRepository, BoardTaskRepository taskRepository, TeamMemberRepository teamMemberRepository) {
         this.boardColumnRepository = boardColumnRepository;
 
         this.userRepository = userRepository;
-        this.taskMapper=taskMapper;
         this.taskRepository=taskRepository;
         this.teamMemberRepository=teamMemberRepository;
         
@@ -66,14 +62,27 @@ public class TaskService implements ITaskService {
         throw new RuntimeException("WIP-Limit dieser Spalte erreicht!");
     }
 
-	BoardTask task = taskMapper.toEntity(requestdto);
+	BoardTask task = new BoardTask();
+    task.setBoardTaskTitle(requestdto.getTitle());
+    task.setBoardTaskDescription(requestdto.getDescription());
+    task.setPriority(requestdto.getPriority());
+
     task.setBoardColumn(column);
     task.setPosition((int) tasksInColumn);
     
     task.setCreator(currentUser);
     
     BoardTask savedTask = taskRepository.save(task);
-    return taskMapper.toCreateResponse(savedTask);
+    
+    TaskCreateResponseDTO responseDTO = new TaskCreateResponseDTO();
+    responseDTO.setTaskID(savedTask.getBoardTaskID());
+    responseDTO.setTitle(savedTask.getBoardTaskTitle());
+    responseDTO.setDescription(savedTask.getBoardTaskDescription());
+    responseDTO.setPriority(savedTask.getPriority());
+    if (savedTask.getBoardColumn() != null) {
+        responseDTO.setColumnID(savedTask.getBoardColumn().getBoardColumnID());
+    }
+    return responseDTO;
 	}
 
 	@Override
@@ -101,7 +110,12 @@ public class TaskService implements ITaskService {
 	    }
 
 	    // 4. Daten aktualisieren (Titel, Beschreibung, Prio, Position)
-	    taskMapper.updateEntityFromDto(requestdto, task);
+	    task.setBoardTaskTitle(requestdto.getTitle());
+	    task.setBoardTaskDescription(requestdto.getDescription());
+	    task.setPriority(requestdto.getPriority());
+	    if (requestdto.getTaskPosition() != null) {
+	        task.setPosition(requestdto.getTaskPosition());
+	    }
 	    
 	    if (requestdto.getAssigneeID() != null) {
 	        User assigneeUser = userRepository.findById(requestdto.getAssigneeID())
@@ -112,7 +126,21 @@ public class TaskService implements ITaskService {
 	    }
 
 	    BoardTask updatedTask = taskRepository.save(task);
-	    return taskMapper.toUpdateResponse(updatedTask);
+	    
+	    TaskUpdateResponseDTO responseDTO = new TaskUpdateResponseDTO();
+	    responseDTO.setTaskID(updatedTask.getBoardTaskID());
+	    responseDTO.setTitle(updatedTask.getBoardTaskTitle());
+	    responseDTO.setDescription(updatedTask.getBoardTaskDescription());
+	    responseDTO.setPriority(updatedTask.getPriority());
+	    responseDTO.setTaskPosition(updatedTask.getPosition());
+	    if (updatedTask.getBoardColumn() != null) {
+	        responseDTO.setColumnID(updatedTask.getBoardColumn().getBoardColumnID());
+	    }
+	    if (updatedTask.getAssignee() != null) {
+	        responseDTO.setAssigneeID(updatedTask.getAssignee().getUserID());
+	        responseDTO.setAssigneeName(updatedTask.getAssignee().getUserName());
+	    }
+	    return responseDTO;
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.yildiz.teamsync.dto.OrganizationRequestDTO;
 import com.yildiz.teamsync.dto.OrganizationResponseDTO;
 import com.yildiz.teamsync.entities.Organization;
-import com.yildiz.teamsync.mappers.OrganizationMapper;
+
 import com.yildiz.teamsync.repositories.OrganizationRepository;
 import com.yildiz.teamsync.services.IOrganizationRegisterService;
 
@@ -13,11 +13,7 @@ import com.yildiz.teamsync.services.IOrganizationRegisterService;
 public class OrganizationRegisterService implements IOrganizationRegisterService {
 	
 	private final OrganizationRepository organizationRepository;
-	private final OrganizationMapper organizationMapper;
-	
-
-	public OrganizationRegisterService (OrganizationRepository organizationRepository, OrganizationMapper organizationMapper) {
-		this.organizationMapper=organizationMapper;
+	public OrganizationRegisterService (OrganizationRepository organizationRepository) {
 		this.organizationRepository= organizationRepository;
 	};
 	
@@ -33,7 +29,9 @@ public class OrganizationRegisterService implements IOrganizationRegisterService
 		if(organizationRepository.findByOrganizationEmail(requestEmail).isPresent()){
 			throw new IllegalArgumentException("Mit dieser Email existiert schon ein Organization.");
 		}
-		Organization organization = organizationMapper.toEntity(requestdto);
+		Organization organization = new Organization();
+		organization.setOrganizationName(requestdto.getOrganizationName());
+		organization.setOrganizationEmail(requestdto.getOrganizationEmail());
 		
 		// Wir nehmen die ersten 3 Buchstaben der Firma + eine Zufallszahl (oder UUID)
 		String cleanName = organization.getOrganizationName().replaceAll("\\s+", "").toUpperCase();
@@ -44,6 +42,11 @@ public class OrganizationRegisterService implements IOrganizationRegisterService
 		
 		Organization savedOrganization = organizationRepository.save(organization);
 		
-		return organizationMapper.toRegisterResponse(savedOrganization);
+		OrganizationResponseDTO responseDTO = new OrganizationResponseDTO();
+		responseDTO.setOrganizationName(savedOrganization.getOrganizationName());
+		responseDTO.setOrganizationEmail(savedOrganization.getOrganizationEmail());
+		responseDTO.setInvitationCode(savedOrganization.getInvitationCode());
+		
+		return responseDTO;
 	}
 }
