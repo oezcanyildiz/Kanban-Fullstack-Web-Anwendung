@@ -8,5 +8,6 @@ import com.yildiz.teamsync.entities.BoardColumn;
 
 public interface BoardColumnRepository extends JpaRepository<BoardColumn , Long> {
 	long countByBoard_BoardID(Long boardID);
+	java.util.List<BoardColumn> findByBoard_BoardIDOrderByColumnPositionAsc(Long boardID);
 
 }

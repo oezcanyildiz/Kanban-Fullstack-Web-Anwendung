@@ -9,13 +9,15 @@ import com.yildiz.teamsync.dto.BoardUpdateRequestDTO;
 import com.yildiz.teamsync.dto.BoardUpdateResponseDTO;
 
 
+import com.yildiz.teamsync.dto.BoardDetailsResponseDTO;
+
 public interface IBoardService {
 	
 	public BoardCreateResponseDTO createBoard(BoardCreateRequestDTO createdto);
 	
 	public BoardUpdateResponseDTO updateBoard(BoardUpdateRequestDTO updateddto);
 	
-	public BoardCreateResponseDTO getBoardDetails(Long boardID);
+	public BoardDetailsResponseDTO getBoardDetails(Long boardID);
 	
 	public List<BoardListResponseDTO> getMyBoards();
 
