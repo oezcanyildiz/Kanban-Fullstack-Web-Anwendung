@@ -1,6 +1,9 @@
 package com.yildiz.teamsync.services.impl;
 
-
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,60 +17,76 @@ import com.yildiz.teamsync.enums.UserRole;
 
 import com.yildiz.teamsync.repositories.OrganizationRepository;
 import com.yildiz.teamsync.repositories.UserRepository;
+import com.yildiz.teamsync.security.JwtUtils;
 import com.yildiz.teamsync.services.IAuthService;
 
 @Service
-public class AuthService implements IAuthService{
-	
+public class AuthService implements IAuthService {
+
 	private final UserRepository userRepository;
 	private final OrganizationRepository organizationRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final JwtUtils jwtUtils;
+	private final AuthenticationManager authenticationManager;
+
 	public AuthService(UserRepository userRepository,
-			PasswordEncoder passwordEncoder, 
-			OrganizationRepository organizationRepository
-			) {
+			PasswordEncoder passwordEncoder,
+			OrganizationRepository organizationRepository,
+			JwtUtils jwtUtils,
+			AuthenticationManager authenticationManager) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.organizationRepository=organizationRepository;
+		this.organizationRepository = organizationRepository;
+		this.jwtUtils = jwtUtils;
+		this.authenticationManager = authenticationManager;
 	}
-	
-	
-    ///////////////////////////////
-    ///							///
-    ///			LOGIN    		///
-    ///							///
-    ///////////////////////////////
+
+	///////////////////////////////
+	/// ///
+	/// LOGIN ///
+	/// ///
+	///////////////////////////////
 	@Override
 	public UserLoginResponseDTO userLogin(UserLoginRequestDTO logindto) {
 		String userEmail = logindto.getUserEmail().trim().toLowerCase();
 		String passwordeingabe = logindto.getUserPassword();
+
+		// 1. Authentifizierung durchführen
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(userEmail, passwordeingabe));
+
+		// 2. Wenn erfolgreich, im SecurityContext speichern
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		// 3. Den User aus der DB holen für die Response-Daten
 		User user = userRepository.findByUserEmail(userEmail)
 				.orElseThrow(() -> new RuntimeException("User mit dieser Email wurde nicht gefunden!"));
-		if(!passwordEncoder.matches(passwordeingabe, user.getUserPassword())) {
-			throw new IllegalArgumentException("Ungültiges Passwords");
-		}		
+
+		// 4. Den JWT Token generieren
+		String jwt = jwtUtils.generateToken(authentication.getName());
+
+		// 5. Response zusammenbauen
 		UserLoginResponseDTO responseDTO = new UserLoginResponseDTO();
 		responseDTO.setUserEmail(user.getUserEmail());
 		responseDTO.setUserName(user.getUserName());
-		// jwtToken will be handled elsewhere or left null according to the original dto
-		
+		responseDTO.setJwtToken(jwt);
+
 		return responseDTO;
 	}
 
-	
-    ///////////////////////////////
-    ///							///
-    ///     	REGISTER  		///
-    ///							///
-    ///////////////////////////////
+	///////////////////////////////
+	/// ///
+	/// REGISTER ///
+	/// ///
+	///////////////////////////////
 	@Override
 	public UserRegisterResponseDTO userRegister(UserRegisterRequestDTO registerdto) {
 		String code = registerdto.getInvitationCode();
 		String userEmail = registerdto.getUserEmail().trim().toLowerCase();
-		
+
 		Organization organization = organizationRepository.findByinvitationCode(code)
-				.orElseThrow(() -> new RuntimeException("dieser Organization wurde nicht gefunden!"));	
-		
+				.orElseThrow(() -> new RuntimeException("dieser Organization wurde nicht gefunden!"));
+
 		if (userRepository.findByUserEmail(userEmail).isPresent()) {
 			throw new IllegalArgumentException("Mit dieser Email existiert schon ein Account.");
 		}
@@ -78,20 +97,20 @@ public class AuthService implements IAuthService{
 		// Password and Org are handled manually already
 		user.setUserPassword(passwordEncoder.encode(registerdto.getUserPassword()));
 		user.setOrganization(organization);
-		
+
 		// Wenn die Organisation noch keine User hat, ist der erste der Admin
 		if (userRepository.countByOrganization(organization) == 0) {
-		    user.setRole(UserRole.ORG_ADMIN);
+			user.setRole(UserRole.ORG_ADMIN);
 		} else {
-		    user.setRole(UserRole.USER);
+			user.setRole(UserRole.USER);
 		}
-		
-		User savedUser= userRepository.save(user);
-		
+
+		User savedUser = userRepository.save(user);
+
 		UserRegisterResponseDTO responsedto = new UserRegisterResponseDTO();
 		responsedto.setUserEmail(savedUser.getUserEmail());
 		// message is ignored or null according to original dto
-		
+
 		return responsedto;
 	}
 }

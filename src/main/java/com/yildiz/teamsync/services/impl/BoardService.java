@@ -19,10 +19,10 @@ import com.yildiz.teamsync.enums.UserRole;
 import com.yildiz.teamsync.repositories.BoardColumnRepository;
 import com.yildiz.teamsync.repositories.BoardRepository;
 import com.yildiz.teamsync.repositories.TeamRepository;
-import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IBoardService;
 import com.yildiz.teamsync.repositories.BoardTaskRepository;
 import com.yildiz.teamsync.dto.BoardDetailsResponseDTO;
+import com.yildiz.teamsync.config.SecurityUtils;
 import com.yildiz.teamsync.dto.BoardColumnDTO;
 import com.yildiz.teamsync.dto.TaskDTO;
 import com.yildiz.teamsync.entities.BoardTask;
@@ -32,17 +32,18 @@ public class BoardService implements IBoardService {
 
 	private final TeamRepository teamRepository;
 	private final BoardRepository boardRepository;
-	private final UserRepository userRepository;
 	private final BoardColumnRepository boardColumnRepository;
 	private final BoardTaskRepository boardTaskRepository;
+	private final SecurityUtils securityUtils;
 
-	public BoardService(TeamRepository teamRepository, BoardRepository boardRepository, UserRepository userRepository,
-			BoardColumnRepository boardColumnRepository, BoardTaskRepository boardTaskRepository) {
+	public BoardService(TeamRepository teamRepository, BoardRepository boardRepository,
+			BoardColumnRepository boardColumnRepository, BoardTaskRepository boardTaskRepository,
+			SecurityUtils securityUtils) {
 		this.teamRepository = teamRepository;
 		this.boardRepository = boardRepository;
-		this.userRepository = userRepository;
 		this.boardColumnRepository = boardColumnRepository;
 		this.boardTaskRepository = boardTaskRepository;
+		this.securityUtils = securityUtils;
 	}
 
 	///////////////////////////////
@@ -57,7 +58,7 @@ public class BoardService implements IBoardService {
 		Team team = teamRepository.findById(createdto.getTeamID())
 				.orElseThrow(() -> new RuntimeException("Team nicht gefunden!"));
 
-		User currentUser = getAuthenticatedUser();
+		User currentUser = securityUtils.getCurrentUserEntity();
 
 		boolean isAdmin = currentUser.getRole() == UserRole.ORG_ADMIN;
 		boolean isOwner = team.getOwner().getUserID().equals(currentUser.getUserID());
@@ -101,7 +102,7 @@ public class BoardService implements IBoardService {
 				.orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
 
 		// 2. Berechtigung prüfen
-		User currentUser = getAuthenticatedUser();
+		User currentUser = securityUtils.getCurrentUserEntity();
 		boolean isAdmin = currentUser.getRole() == UserRole.ORG_ADMIN;
 		boolean isOwner = board.getTeam().getOwner().getUserID().equals(currentUser.getUserID());
 
@@ -129,7 +130,7 @@ public class BoardService implements IBoardService {
 		Board board = boardRepository.findById(boardID)
 				.orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
 
-		User currentUser = getAuthenticatedUser();
+		User currentUser = securityUtils.getCurrentUserEntity();
 
 		// PRÜFUNG: Gehört der User zur selben Organisation wie das Team des Boards?
 		// Wir vergleichen die IDs der Organisationen
@@ -195,7 +196,7 @@ public class BoardService implements IBoardService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<BoardListResponseDTO> getMyBoards() {
-		User currentUser = getAuthenticatedUser();
+		User currentUser = securityUtils.getCurrentUserEntity();
 
 		// Wir holen alle Boards der Organisation des Users
 		List<Board> boards = boardRepository.findAllByTeam_Organization_OrganizationID(
@@ -217,9 +218,5 @@ public class BoardService implements IBoardService {
 	/// HILFSMETHODEN ///
 	/// ///
 	///////////////////////////////
-	private User getAuthenticatedUser() {
-
-		return userRepository.findById(1L).get();
-	}
 
 }

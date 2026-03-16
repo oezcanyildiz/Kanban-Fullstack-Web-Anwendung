@@ -3,6 +3,7 @@ package com.yildiz.teamsync.services.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.yildiz.teamsync.config.SecurityUtils;
 import com.yildiz.teamsync.dto.TaskCreateRequestDTO;
 import com.yildiz.teamsync.dto.TaskCreateResponseDTO;
 import com.yildiz.teamsync.dto.TaskUpdateRequestDTO;
@@ -26,16 +27,17 @@ public class TaskService implements ITaskService {
 	private final UserRepository userRepository;
 	private final BoardTaskRepository taskRepository;
 	private final TeamMemberRepository teamMemberRepository;
+	private final SecurityUtils securityUtils;
 
 	public TaskService(BoardColumnRepository boardColumnRepository,
 			UserRepository userRepository, BoardTaskRepository taskRepository,
-			TeamMemberRepository teamMemberRepository) {
+			TeamMemberRepository teamMemberRepository, SecurityUtils securityUtils) {
 		this.boardColumnRepository = boardColumnRepository;
 
 		this.userRepository = userRepository;
 		this.taskRepository = taskRepository;
 		this.teamMemberRepository = teamMemberRepository;
-
+		this.securityUtils = securityUtils;
 	}
 
 	@Override
@@ -45,7 +47,7 @@ public class TaskService implements ITaskService {
 				.orElseThrow(() -> new RuntimeException("Spalte nicht gefunden."));
 		Board board = column.getBoard();
 
-		User currentUser = getAuthenticatedUser();
+		User currentUser = securityUtils.getCurrentUserEntity();
 		checkPermission(board, currentUser);
 
 		long totalTasksOnBoard = taskRepository.countByBoardColumn_BoardColumnID(board.getBoardID());
@@ -93,7 +95,7 @@ public class TaskService implements ITaskService {
 				.orElseThrow(() -> new RuntimeException("Task nicht gefunden!"));
 
 		// 2. Berechtigung prüfen (Darf dieses Team-Mitglied das?)
-		checkTeamMemberPermission(task.getBoardColumn().getBoard(), getAuthenticatedUser());
+		checkTeamMemberPermission(task.getBoardColumn().getBoard(), securityUtils.getCurrentUserEntity());
 
 		// 3. Spaltenwechsel & WIP-Limit prüfen
 		// Wenn die columnID im DTO anders ist als die aktuelle columnID des Tasks:
@@ -149,7 +151,7 @@ public class TaskService implements ITaskService {
 		BoardTask task = taskRepository.findById(taskID)
 				.orElseThrow(() -> new RuntimeException("Task mit der ID " + taskID + " wurde nicht gefunden."));
 
-		User currentUser = getAuthenticatedUser();
+		User currentUser = securityUtils.getCurrentUserEntity();
 
 		checkTeamMemberPermission(task.getBoardColumn().getBoard(), currentUser);
 
@@ -185,7 +187,4 @@ public class TaskService implements ITaskService {
 		}
 	}
 
-	private User getAuthenticatedUser() {
-		return userRepository.findById(1L).get(); // Dummy für jetzt
-	}
 }
