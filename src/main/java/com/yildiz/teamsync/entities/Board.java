@@ -22,5 +22,11 @@ public class Board extends BaseEntity{
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="team_id", nullable = false)
 	private Team team;
+
+	@Column(name = "deleted")
+	private Boolean deleted = false;
 	
+    public boolean isDeleted() {
+        return deleted != null && deleted;
+    }
 }

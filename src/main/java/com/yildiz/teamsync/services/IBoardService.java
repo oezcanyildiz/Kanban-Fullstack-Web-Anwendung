@@ -21,4 +21,6 @@ public interface IBoardService {
 	
 	public List<BoardListResponseDTO> getMyBoards();
 
+	public void deleteBoard(Long boardID);
+
 }

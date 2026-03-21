@@ -11,7 +11,7 @@ import com.yildiz.teamsync.dto.UserProfileResponseDTO;
 import com.yildiz.teamsync.services.IUserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final IUserService userService;

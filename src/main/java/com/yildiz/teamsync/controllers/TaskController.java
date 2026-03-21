@@ -16,7 +16,7 @@ import com.yildiz.teamsync.dto.TaskUpdateResponseDTO;
 import com.yildiz.teamsync.services.ITaskService;
 
 @RestController
-@RequestMapping("/tasks")
+@RequestMapping("/api/tasks")
 public class TaskController {
 
     private final ITaskService taskService;

@@ -21,28 +21,35 @@ import com.yildiz.teamsync.repositories.BoardRepository;
 import com.yildiz.teamsync.repositories.TeamRepository;
 import com.yildiz.teamsync.services.IBoardService;
 import com.yildiz.teamsync.repositories.BoardTaskRepository;
+import com.yildiz.teamsync.repositories.TeamMemberRepository;
 import com.yildiz.teamsync.dto.BoardDetailsResponseDTO;
 import com.yildiz.teamsync.config.SecurityUtils;
 import com.yildiz.teamsync.dto.BoardColumnDTO;
 import com.yildiz.teamsync.dto.TaskDTO;
 import com.yildiz.teamsync.entities.BoardTask;
+import com.yildiz.teamsync.entities.TeamMember;
+import com.yildiz.teamsync.dto.TeamMemberSimpleDTO;
 
 @Service
 public class BoardService implements IBoardService {
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BoardService.class);
+
 
 	private final TeamRepository teamRepository;
 	private final BoardRepository boardRepository;
 	private final BoardColumnRepository boardColumnRepository;
 	private final BoardTaskRepository boardTaskRepository;
+	private final TeamMemberRepository teamMemberRepository;
 	private final SecurityUtils securityUtils;
 
 	public BoardService(TeamRepository teamRepository, BoardRepository boardRepository,
 			BoardColumnRepository boardColumnRepository, BoardTaskRepository boardTaskRepository,
-			SecurityUtils securityUtils) {
+			TeamMemberRepository teamMemberRepository, SecurityUtils securityUtils) {
 		this.teamRepository = teamRepository;
 		this.boardRepository = boardRepository;
 		this.boardColumnRepository = boardColumnRepository;
 		this.boardTaskRepository = boardTaskRepository;
+		this.teamMemberRepository = teamMemberRepository;
 		this.securityUtils = securityUtils;
 	}
 
@@ -70,6 +77,7 @@ public class BoardService implements IBoardService {
 		Board board = new Board();
 		board.setBoardName(createdto.getBoardName());
 		board.setTeam(team);
+		board.setDeleted(false);
 		Board savedBoard = boardRepository.save(board);
 
 		// 3. AUTOMATIK: Die Standard-Spalten anlegen
@@ -83,6 +91,7 @@ public class BoardService implements IBoardService {
 			column.setWipLimit(10);
 			boardColumnRepository.save(column);
 		}
+		log.info("Board created: {} with default columns for Team ID: {}", savedBoard.getBoardID(), team.getTeamID());
 		BoardCreateResponseDTO responseDTO = new BoardCreateResponseDTO();
 		responseDTO.setBoardID(savedBoard.getBoardID());
 		responseDTO.setBoardName(savedBoard.getBoardName());
@@ -128,21 +137,19 @@ public class BoardService implements IBoardService {
 	@Transactional(readOnly = true)
 	public BoardDetailsResponseDTO getBoardDetails(Long boardID) {
 		Board board = boardRepository.findById(boardID)
+				.filter(b -> !b.isDeleted())
+				.filter(b -> !b.getTeam().isDeleted())
 				.orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
 
 		User currentUser = securityUtils.getCurrentUserEntity();
 
-		// PRÜFUNG: Gehört der User zur selben Organisation wie das Team des Boards?
-		// Wir vergleichen die IDs der Organisationen
-		boolean sameOrganization = currentUser.getOrganization().getOrganizationID()
-				.equals(board.getTeam().getOrganization().getOrganizationID());
-
 		// 1. Die Berechtigungen berechnen
 		boolean isAdmin = currentUser.getRole() == UserRole.ORG_ADMIN;
 		boolean isTeamOwner = board.getTeam().getOwner().getUserID().equals(currentUser.getUserID());
+        boolean isTeamMember = teamMemberRepository.existsByTeam_TeamIDAndUser_UserID(board.getTeam().getTeamID(), currentUser.getUserID());
 
-		// 2. Der optimierte Check
-		if (isAdmin || isTeamOwner || sameOrganization) {
+		// 2. Der optimierte Check (Sicherheitsgrenze)
+		if (isAdmin || isTeamOwner || isTeamMember) {
 			BoardDetailsResponseDTO responseDTO = new BoardDetailsResponseDTO();
 			responseDTO.setBoardID(board.getBoardID());
 			responseDTO.setBoardName(board.getBoardName());
@@ -159,9 +166,8 @@ public class BoardService implements IBoardService {
 
 				// 4. Tasks für diese Spalte laden (nicht-gelöschte)
 				List<BoardTask> tasks = boardTaskRepository
-						.findByBoardColumn_BoardColumnIDOrderByPositionAsc(col.getBoardColumnID());
+						.findByBoardColumn_BoardColumnIDAndDeletedFalseOrderByPositionAsc(col.getBoardColumnID());
 				List<TaskDTO> taskDTOs = tasks.stream()
-						.filter(task -> !task.isDeleted())
 						.map(task -> {
 							TaskDTO taskDTO = new TaskDTO();
 							taskDTO.setTaskID(task.getBoardTaskID());
@@ -181,6 +187,19 @@ public class BoardService implements IBoardService {
 			}).toList();
 
 			responseDTO.setColumns(columnDTOs);
+			log.info("Returning {} columns for Board ID: {}", columnDTOs.size(), board.getBoardID());
+
+
+			// 5. Teammitglieder laden (für Assignee-Dropdown relevant)
+			List<TeamMember> members = teamMemberRepository.findByTeam_TeamID(board.getTeam().getTeamID());
+			List<TeamMemberSimpleDTO> memberDTOs = members.stream().map(m -> {
+				return new TeamMemberSimpleDTO(
+						m.getUser().getUserID(),
+						m.getUser().getUserName(),
+						m.getUser().getUserLastName());
+			}).toList();
+			responseDTO.setTeamMembers(memberDTOs);
+
 			return responseDTO;
 		} else {
 			throw new RuntimeException("Zugriff verweigert: Sie haben keine Berechtigung für dieses Board.");
@@ -198,9 +217,22 @@ public class BoardService implements IBoardService {
 	public List<BoardListResponseDTO> getMyBoards() {
 		User currentUser = securityUtils.getCurrentUserEntity();
 
-		// Wir holen alle Boards der Organisation des Users
-		List<Board> boards = boardRepository.findAllByTeam_Organization_OrganizationID(
-				currentUser.getOrganization().getOrganizationID());
+		// 1. Nur die Teams laden, in denen der Nutzer als Mitglied registriert ist
+		List<TeamMember> userMemberships = teamMemberRepository.findByUser_UserID(currentUser.getUserID());
+		List<Long> teamIDs = userMemberships.stream()
+				.filter(tm -> !tm.getTeam().isDeleted())
+				.map(tm -> tm.getTeam().getTeamID())
+				.toList();
+
+		List<Board> boards;
+		if (teamIDs.isEmpty()) {
+			boards = new java.util.ArrayList<>();
+		} else {
+			boards = boardRepository.findAll().stream()
+					.filter(b -> teamIDs.contains(b.getTeam().getTeamID()))
+					.filter(b -> !b.isDeleted())
+					.toList();
+		}
 
 		return boards.stream().map(board -> {
 			BoardListResponseDTO dto = new BoardListResponseDTO();
@@ -215,8 +247,30 @@ public class BoardService implements IBoardService {
 
 	///////////////////////////////
 	/// ///
+	/// DELETE ///
+	/// ///
+	///////////////////////////////
+	@Override
+	@Transactional
+	public void deleteBoard(Long boardID) {
+		Board board = boardRepository.findById(boardID)
+				.orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
+
+		User currentUser = securityUtils.getCurrentUserEntity();
+		boolean isAdmin = currentUser.getRole() == UserRole.ORG_ADMIN;
+		boolean isOwner = board.getTeam().getOwner().getUserID().equals(currentUser.getUserID());
+
+		if (!isAdmin && !isOwner) {
+			throw new RuntimeException("Nur der Admin oder der Teamleiter darf dieses Board löschen.");
+		}
+
+		board.setDeleted(true);
+		boardRepository.save(board);
+	}
+
+	///////////////////////////////
+	/// ///
 	/// HILFSMETHODEN ///
 	/// ///
 	///////////////////////////////
-
 }

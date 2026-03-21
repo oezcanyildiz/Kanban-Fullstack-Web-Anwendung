@@ -14,4 +14,5 @@ public class BoardDetailsResponseDTO {
     private Long boardID;
     private String boardName;
     private List<BoardColumnDTO> columns;
+    private List<TeamMemberSimpleDTO> teamMembers;
 }

@@ -69,7 +69,15 @@ public class AuthService implements IAuthService {
 		UserLoginResponseDTO responseDTO = new UserLoginResponseDTO();
 		responseDTO.setUserEmail(user.getUserEmail());
 		responseDTO.setUserName(user.getUserName());
+		responseDTO.setUserLastName(user.getUserLastName());
 		responseDTO.setJwtToken(jwt);
+		responseDTO.setRole(user.getRole());
+		responseDTO.setUserID(user.getUserID());
+		if (user.getOrganization() != null) {
+			responseDTO.setOrganizationID(user.getOrganization().getOrganizationID());
+			responseDTO.setOrganizationName(user.getOrganization().getOrganizationName());
+			responseDTO.setInvitationCode(user.getOrganization().getInvitationCode());
+		}
 
 		return responseDTO;
 	}
@@ -109,7 +117,12 @@ public class AuthService implements IAuthService {
 
 		UserRegisterResponseDTO responsedto = new UserRegisterResponseDTO();
 		responsedto.setUserEmail(savedUser.getUserEmail());
-		// message is ignored or null according to original dto
+
+		String message = String.format(
+				"Willkommen, %s! Dein Account für die Organisation %s wurde erstellt. Bitte logge dich jetzt ein.",
+				savedUser.getUserName(),
+				organization.getOrganizationName());
+		responsedto.setMessage(message);
 
 		return responsedto;
 	}

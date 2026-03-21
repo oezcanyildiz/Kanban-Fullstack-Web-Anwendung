@@ -10,4 +10,6 @@ public interface ITeamMemberService {
 	
 	List<UserSearchResponseDTO> searchUsers(String query);
 
+	public List<com.yildiz.teamsync.dto.UserListResponseDTO> getPotentialTeamMembers(Long teamId);
+
 }

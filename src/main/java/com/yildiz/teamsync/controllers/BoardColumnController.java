@@ -16,7 +16,7 @@ import com.yildiz.teamsync.dto.BoardColumnUpdateResponseDTO;
 import com.yildiz.teamsync.services.IBoardColumnService;
 
 @RestController
-@RequestMapping("/columns")
+@RequestMapping("/api/columns")
 public class BoardColumnController {
 
     private final IBoardColumnService boardColumnService;

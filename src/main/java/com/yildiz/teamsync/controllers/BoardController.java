@@ -3,24 +3,25 @@ package com.yildiz.teamsync.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.yildiz.teamsync.dto.BoardCreateRequestDTO;
 import com.yildiz.teamsync.dto.BoardCreateResponseDTO;
-import com.yildiz.teamsync.dto.BoardUpdateRequestDTO;
-import com.yildiz.teamsync.dto.BoardUpdateResponseDTO;
 import com.yildiz.teamsync.dto.BoardDetailsResponseDTO;
 import com.yildiz.teamsync.dto.BoardListResponseDTO;
 import com.yildiz.teamsync.services.IBoardService;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/api/board")
 public class BoardController {
 
     private final IBoardService boardService;
@@ -30,18 +31,9 @@ public class BoardController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BoardCreateResponseDTO> createBoard(@RequestBody BoardCreateRequestDTO request) {
-        return ResponseEntity.ok(boardService.createBoard(request));
-    }
-
-    @PatchMapping("/update")
-    public ResponseEntity<BoardUpdateResponseDTO> updateBoard(@RequestBody BoardUpdateRequestDTO request) {
-        return ResponseEntity.ok(boardService.updateBoard(request));
-    }
-
-    @GetMapping("/details")
-    public ResponseEntity<BoardDetailsResponseDTO> getBoardDetails(@RequestParam Long boardID) {
-        return ResponseEntity.ok(boardService.getBoardDetails(boardID));
+    public ResponseEntity<BoardCreateResponseDTO> createBoard(@Valid @RequestBody BoardCreateRequestDTO requestDTO) {
+        BoardCreateResponseDTO response = boardService.createBoard(requestDTO);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/my-boards")
@@ -49,4 +41,14 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getMyBoards());
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<BoardDetailsResponseDTO> getBoardDetails(@RequestParam(name = "boardID") Long boardID) {
+        return ResponseEntity.ok(boardService.getBoardDetails(boardID));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBoard(@PathVariable Long id) {
+        boardService.deleteBoard(id);
+        return ResponseEntity.ok().build();
+    }
 }

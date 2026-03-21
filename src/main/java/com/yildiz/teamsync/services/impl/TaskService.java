@@ -50,16 +50,13 @@ public class TaskService implements ITaskService {
 		User currentUser = securityUtils.getCurrentUserEntity();
 		checkPermission(board, currentUser);
 
-		long totalTasksOnBoard = taskRepository.countByBoardColumn_BoardColumnID(board.getBoardID());
+		long totalTasksOnBoard = taskRepository.countByBoardColumn_Board_BoardIDAndDeletedFalse(board.getBoardID());
 		if (totalTasksOnBoard >= 50) {
 			throw new RuntimeException("Das Board-Limit von 50 Tasks wurde erreicht!");
 		}
 
-		if (column.getColumnPosition() != 0) {
-			throw new RuntimeException("Tasks können nur in der ersten Spalte erstellt werden!");
-		}
 
-		long tasksInColumn = taskRepository.countByBoardColumn_BoardColumnID(column.getBoardColumnID());
+		long tasksInColumn = taskRepository.countByBoardColumn_BoardColumnIDAndDeletedFalse(column.getBoardColumnID());
 		if (column.getWipLimit() != null && tasksInColumn >= column.getWipLimit()) {
 			throw new RuntimeException("WIP-Limit dieser Spalte erreicht!");
 		}
@@ -73,6 +70,7 @@ public class TaskService implements ITaskService {
 		task.setPosition((int) tasksInColumn);
 
 		task.setCreator(currentUser);
+		task.setDeleted(false); // Sicherstellen, dass NOT NULL Constraint erfüllt ist
 
 		BoardTask savedTask = taskRepository.save(task);
 
@@ -104,7 +102,7 @@ public class TaskService implements ITaskService {
 					.orElseThrow(() -> new RuntimeException("Ziel-Spalte nicht gefunden!"));
 
 			// WIP-Limit der ZIEL-Spalte prüfen
-			long tasksInTarget = taskRepository.countByBoardColumn_BoardColumnID(targetColumn.getBoardColumnID());
+			long tasksInTarget = taskRepository.countByBoardColumn_BoardColumnIDAndDeletedFalse(targetColumn.getBoardColumnID());
 			if (targetColumn.getWipLimit() != null && tasksInTarget >= targetColumn.getWipLimit()) {
 				throw new RuntimeException("Ziel-Spalte ist voll! WIP-Limit erreicht.");
 			}

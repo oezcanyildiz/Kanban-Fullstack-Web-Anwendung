@@ -10,6 +10,8 @@ public interface IOrganizationManagementService {
     
     void promoteToTeamLeader(Long userID);
     
+    void demoteToUser(Long userID);
+    
     void removeUserFromOrganization(Long userID);
 
 }

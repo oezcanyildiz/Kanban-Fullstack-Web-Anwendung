@@ -42,8 +42,8 @@ public class BoardColumnService implements IBoardColumnService {
 		checkPermission(board, currentUser);
 
 		long currentColumns = boardColumnRepository.countByBoard_BoardID(board.getBoardID());
-		if (currentColumns >= 8) {
-			throw new RuntimeException("Maximale Anzahl von 8 Spalten erreicht!");
+		if (currentColumns >= 5) {
+			throw new RuntimeException("Maximale Anzahl von 5 Spalten erreicht!");
 		}
 		BoardColumn column = new BoardColumn();
 		column.setColumnTitle(createdto.getColumnTitle());
@@ -100,6 +100,12 @@ public class BoardColumnService implements IBoardColumnService {
 				.orElseThrow(() -> new RuntimeException("Spalte nicht gefunden!"));
 
 		checkPermission(column.getBoard(), securityUtils.getCurrentUserEntity());
+
+		String title = column.getColumnTitle().toLowerCase().trim();
+		if (title.equals("to do") || title.equals("in progress") || title.equals("done") ||
+			title.equals("todo") || title.equals("bereit") || title.equals("erledigt") || title.equals("in arbeit")) {
+			throw new RuntimeException("Diese Standard-Spalte kann nicht gelöscht werden!");
+		}
 
 		boardColumnRepository.delete(column);
 	}

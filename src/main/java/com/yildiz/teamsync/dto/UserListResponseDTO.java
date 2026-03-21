@@ -26,5 +26,7 @@ public class UserListResponseDTO {
 	    private UserRole role;
 	    
 	    private Long organizationID;
+	    
+	    private java.util.List<String> teams;
 
 }

@@ -78,7 +78,7 @@ public class SecurityConfig {
 
                 // 4. Welche Routen sind erlaubt?
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/organization/register").permitAll() // Registrieren/Login ist für ALLE erlaubt!
+                        .requestMatchers("/api/auth/**", "/api/organization/register", "/error").permitAll() // Registrieren/Login ist für ALLE erlaubt!
                         .anyRequest().authenticated() // Für ALLES andere (Boards, Tasks) brauchst du einen JWT!
                 );
 

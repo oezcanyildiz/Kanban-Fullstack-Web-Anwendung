@@ -24,15 +24,15 @@ public class BoardTask extends BaseEntity {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String boardTaskDescription;
 	
-	@Column(nullable=false)
+	@Column(nullable = false)
 	private Integer	position;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "priority", nullable = false)
 	private TaskPriority priority = TaskPriority.MEDIUM; // Default-Wert
 	
-	@Column(nullable = false)
-	private boolean deleted=false;
+	@Column(name = "deleted")
+	private Boolean deleted = false;
 	
 	// Viele Tasks gehören zu einer Spalte
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,5 +49,8 @@ public class BoardTask extends BaseEntity {
     @JoinColumn(name = "assignee_id")
     private User assignee;
 	
+    public boolean isDeleted() {
+        return deleted != null && deleted;
+    }
 
 }

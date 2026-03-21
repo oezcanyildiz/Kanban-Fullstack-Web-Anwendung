@@ -7,6 +7,7 @@ import com.yildiz.teamsync.entities.BoardTask;
 @Repository
 public interface BoardTaskRepository extends JpaRepository<BoardTask, Long>{
 
-	long countByBoardColumn_BoardColumnID(Long columnID);
-	java.util.List<BoardTask> findByBoardColumn_BoardColumnIDOrderByPositionAsc(Long columnID);
+	long countByBoardColumn_BoardColumnIDAndDeletedFalse(Long columnID);
+	long countByBoardColumn_Board_BoardIDAndDeletedFalse(Long boardID);
+	java.util.List<BoardTask> findByBoardColumn_BoardColumnIDAndDeletedFalseOrderByPositionAsc(Long columnID);
 }

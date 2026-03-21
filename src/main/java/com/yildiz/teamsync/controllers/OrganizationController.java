@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/organization")
+@RequestMapping("/api/organization")
 public class OrganizationController {
 
     private final IOrganizationManagementService organizationManagementService;
@@ -47,6 +47,12 @@ public class OrganizationController {
     @PatchMapping("/promote/{userID}")
     public ResponseEntity<Void> promoteToLeader(@PathVariable Long userID) {
         organizationManagementService.promoteToTeamLeader(userID);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/demote/{userID}")
+    public ResponseEntity<Void> demoteToUser(@PathVariable Long userID) {
+        organizationManagementService.demoteToUser(userID);
         return ResponseEntity.ok().build();
     }
 

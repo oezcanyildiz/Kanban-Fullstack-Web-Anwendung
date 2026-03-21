@@ -37,6 +37,11 @@ public class Team extends BaseEntity {
 	@ManyToOne(fetch= FetchType.LAZY)
 	@JoinColumn(name="organization_id",nullable = false)
     private Organization organization;
-	
 
+	@Column(name = "deleted")
+	private Boolean deleted = false;
+
+    public boolean isDeleted() {
+        return deleted != null && deleted;
+    }
 }

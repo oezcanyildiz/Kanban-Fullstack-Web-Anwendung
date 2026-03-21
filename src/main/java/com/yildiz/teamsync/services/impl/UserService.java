@@ -6,19 +6,21 @@ import org.springframework.stereotype.Service;
 import com.yildiz.teamsync.dto.UserProfileRequestDTO;
 import com.yildiz.teamsync.dto.UserProfileResponseDTO;
 import com.yildiz.teamsync.entities.User;
-
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IUserService;
+import com.yildiz.teamsync.config.SecurityUtils;
 
 @Service
 public class UserService implements IUserService {
 	
 	public final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final SecurityUtils securityUtils;
 	
-	public UserService (UserRepository userRepository , PasswordEncoder passwordEncoder) {
+	public UserService (UserRepository userRepository , PasswordEncoder passwordEncoder, SecurityUtils securityUtils) {
 		this.userRepository = userRepository;
 		this.passwordEncoder =passwordEncoder;
+		this.securityUtils = securityUtils;
 	}
 
     ///////////////////////////////
@@ -56,8 +58,7 @@ public class UserService implements IUserService {
     ///							///
     ///////////////////////////////
     private User getAuthenticatedUser() {
-        
-        return userRepository.findById(1L).get(); 
+        return securityUtils.getCurrentUserEntity();
     }
 
 }

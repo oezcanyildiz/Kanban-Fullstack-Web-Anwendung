@@ -39,7 +39,7 @@ public class User extends BaseEntity{
     @Column(nullable = false)
 	private String userPassword;
     @Column(nullable = false)
-    private boolean isOnline = false;
+    private Boolean isOnline = false;
 	
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", nullable = false) 
@@ -48,4 +48,8 @@ public class User extends BaseEntity{
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
+
+    public boolean isOnline() {
+        return isOnline != null && isOnline;
+    }
 }

@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.yildiz.teamsync.config.SecurityUtils;
+import com.yildiz.teamsync.dto.UserListResponseDTO;
+
 @Service
 @RequiredArgsConstructor
 public class TeamMemberService implements ITeamMemberService {
@@ -25,6 +28,7 @@ public class TeamMemberService implements ITeamMemberService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserRepository userRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional
@@ -33,7 +37,7 @@ public class TeamMemberService implements ITeamMemberService {
         Team team = teamRepository.findById(requestdto.getTeamID())
                 .orElseThrow(() -> new RuntimeException("Team nicht gefunden!"));
 
-        User currentUser = getAuthenticatedUser(); // Die Hilfsmethode von gestern
+        User currentUser = securityUtils.getCurrentUserEntity();
 
         // 2. BERECHTIGUNGSPRÜFUNG
         boolean isAdmin = currentUser.getRole() == UserRole.ORG_ADMIN;
@@ -63,11 +67,7 @@ public class TeamMemberService implements ITeamMemberService {
         teamMemberRepository.save(newMembership);
     }
 
-    private User getAuthenticatedUser() {
-        // Hier später die echte Security-Logik. Für jetzt nehmen wir ID 1
-        // (Admin/Leader)
-        return userRepository.findById(1L).orElseThrow();
-    }
+
 
     @Override
     public List<UserSearchResponseDTO> searchUsers(String query) {
@@ -79,5 +79,33 @@ public class TeamMemberService implements ITeamMemberService {
                 .stream()
                 .map(user -> new UserSearchResponseDTO(user.getUserID(), user.getUserName(), user.getUserEmail()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserListResponseDTO> getPotentialTeamMembers(Long teamId) {
+        User currentUser = securityUtils.getCurrentUserEntity();
+        Long orgId = currentUser.getOrganization().getOrganizationID();
+
+        // Alle Mitarbeiter der Organisation
+        List<User> orgEmployees = userRepository.findAllByOrganization_OrganizationID(orgId);
+
+        // IDs derer, die schon im Team sind
+        List<Long> currentMemberIds = teamMemberRepository.findByTeam_TeamID(teamId)
+                .stream()
+                .map(tm -> tm.getUser().getUserID())
+                .toList();
+
+        return orgEmployees.stream()
+                .filter(u -> !currentMemberIds.contains(u.getUserID()))
+                .filter(u -> u.getRole() != UserRole.ORG_ADMIN) // Admins nicht in der Liste
+                .map(user -> {
+                    UserListResponseDTO dto = new UserListResponseDTO();
+                    dto.setUserID(user.getUserID());
+                    dto.setUserName(user.getUserName());
+                    dto.setUserLastName(user.getUserLastName());
+                    dto.setUserEmail(user.getUserEmail());
+                    dto.setRole(user.getRole());
+                    return dto;
+                }).collect(Collectors.toList());
     }
 }
