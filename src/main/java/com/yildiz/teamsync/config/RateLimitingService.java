@@ -19,6 +19,7 @@ public class RateLimitingService {
         return cache.computeIfAbsent(ipAddress, this::newBucket);
     }
 
+    @SuppressWarnings("deprecation")
     private Bucket newBucket(String ipAddress) {
         // Konfiguration: 50 Anfragen pro Minute erlaubt
         // Das ist realistischer für Dashboard-Anwendungen.

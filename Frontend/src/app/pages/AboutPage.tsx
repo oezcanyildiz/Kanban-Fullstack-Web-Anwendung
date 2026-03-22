@@ -78,9 +78,9 @@ export function AboutPage() {
             <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2"><Code2 className="w-5 h-5 text-[#0052CC]" /> Fähigkeiten</h2>
             <div className="space-y-3">
               {[
-                { label: "Backend", value: "Java 21, Spring Boot, Spring Security, Hibernate/JPA" },
+                { label: "Backend", value: "Java 21, Spring Boot, Spring Security, Hibernate/JPA, Bucket4j" },
                 { label: "Datenbanken", value: "PostgreSQL, relationales Design, Normalisierung (3NF)" },
-                { label: "Frontend", value: "React, TypeScript, Tailwind CSS, HTML5, CSS3" },
+                { label: "Frontend", value: "Vue.js, HTML5, CSS3, Tailwind CSS, AI-Assisted UI (React)" },
                 { label: "Testing", value: "JUnit 5, Mockito, Pytest" },
                 { label: "DevOps", value: "Docker, Maven, Git" },
                 { label: "Machine Learning", value: "scikit-learn, SVM, TF-IDF" },

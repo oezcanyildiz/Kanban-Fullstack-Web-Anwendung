@@ -344,6 +344,15 @@ export function BoardPage() {
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
             </button>
             <div className="w-px h-6 bg-gray-200" />
+            
+            {localStorage.getItem("userRole") === "TEAM_LEADER" && (
+              <Link to="/leader">
+                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 text-xs font-medium border border-indigo-100 mr-2">
+                  Leader Dashboard
+                </Button>
+              </Link>
+            )}
+
             <Link to="/profile" title="Profileinstellungen">
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center hover:ring-2 hover:ring-blue-300 transition-all cursor-pointer">
                 {`${(localStorage.getItem('userName') || '?').charAt(0)}${(localStorage.getItem('userLastName') || '').charAt(0)}`.toUpperCase()}

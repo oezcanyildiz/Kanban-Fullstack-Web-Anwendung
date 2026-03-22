@@ -55,7 +55,10 @@ export function LoginPage() {
     <div className="min-h-screen bg-[#0052CC] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src={logo} alt="KanKan Logo" className="h-16 mx-auto mb-4" />
+          <Link to="/" className="inline-flex items-center justify-center gap-3 hover:opacity-90 transition-opacity">
+            <img src={logo} alt="Boardly Logo" className="h-14" />
+            <span className="text-4xl font-bold text-white tracking-tight">Boardly.one</span>
+          </Link>
         </div>
         
         <div className="bg-white rounded-lg shadow-lg p-8">

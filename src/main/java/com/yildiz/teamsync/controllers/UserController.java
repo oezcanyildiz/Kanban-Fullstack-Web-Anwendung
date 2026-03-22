@@ -10,6 +10,8 @@ import com.yildiz.teamsync.dto.UserProfileRequestDTO;
 import com.yildiz.teamsync.dto.UserProfileResponseDTO;
 import com.yildiz.teamsync.services.IUserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -21,7 +23,7 @@ public class UserController {
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<UserProfileResponseDTO> updateProfile(@RequestBody UserProfileRequestDTO requestDTO) {
+    public ResponseEntity<UserProfileResponseDTO> updateProfile(@RequestBody @Valid UserProfileRequestDTO requestDTO) {
         UserProfileResponseDTO responseDTO = userService.updateProfile(requestDTO);
         return ResponseEntity.ok(responseDTO);
     }

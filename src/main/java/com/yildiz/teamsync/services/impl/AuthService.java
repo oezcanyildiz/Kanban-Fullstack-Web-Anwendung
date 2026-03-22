@@ -14,7 +14,8 @@ import com.yildiz.teamsync.dto.UserRegisterResponseDTO;
 import com.yildiz.teamsync.entities.Organization;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-
+import com.yildiz.teamsync.exceptions.ConflictException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
 import com.yildiz.teamsync.repositories.OrganizationRepository;
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.security.JwtUtils;
@@ -60,7 +61,7 @@ public class AuthService implements IAuthService {
 
 		// 3. Den User aus der DB holen für die Response-Daten
 		User user = userRepository.findByUserEmail(userEmail)
-				.orElseThrow(() -> new RuntimeException("User mit dieser Email wurde nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("User mit dieser Email wurde nicht gefunden!"));
 
 		// 4. Den JWT Token generieren
 		String jwt = jwtUtils.generateToken(authentication.getName());
@@ -93,10 +94,10 @@ public class AuthService implements IAuthService {
 		String userEmail = registerdto.getUserEmail().trim().toLowerCase();
 
 		Organization organization = organizationRepository.findByinvitationCode(code)
-				.orElseThrow(() -> new RuntimeException("dieser Organization wurde nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("dieser Organization wurde nicht gefunden!"));
 
 		if (userRepository.findByUserEmail(userEmail).isPresent()) {
-			throw new IllegalArgumentException("Mit dieser Email existiert schon ein Account.");
+			throw new ConflictException("Mit dieser Email existiert schon ein Account.");
 		}
 		User user = new User();
 		user.setUserName(registerdto.getUserName());

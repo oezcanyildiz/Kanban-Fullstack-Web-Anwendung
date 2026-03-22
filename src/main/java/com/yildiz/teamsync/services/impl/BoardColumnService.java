@@ -12,7 +12,9 @@ import com.yildiz.teamsync.entities.Board;
 import com.yildiz.teamsync.entities.BoardColumn;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-
+import com.yildiz.teamsync.exceptions.AccessDeniedException;
+import com.yildiz.teamsync.exceptions.BadRequestException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
 import com.yildiz.teamsync.repositories.BoardColumnRepository;
 import com.yildiz.teamsync.repositories.BoardRepository;
 import com.yildiz.teamsync.services.IBoardColumnService;
@@ -37,13 +39,14 @@ public class BoardColumnService implements IBoardColumnService {
 	public BoardColumnCreateResponseDTO createColumn(BoardColumnCreateRequestDTO createdto) {
 		Board board = boardRepository.findById(createdto.getBoardID())
 				.orElseThrow(
-						() -> new RuntimeException("Board mit der ID " + createdto.getBoardID() + " nicht gefunden!"));
+						() -> new ResourceNotFoundException(
+								"Board mit der ID " + createdto.getBoardID() + " nicht gefunden!"));
 		User currentUser = securityUtils.getCurrentUserEntity();
 		checkPermission(board, currentUser);
 
 		long currentColumns = boardColumnRepository.countByBoard_BoardID(board.getBoardID());
 		if (currentColumns >= 5) {
-			throw new RuntimeException("Maximale Anzahl von 5 Spalten erreicht!");
+			throw new BadRequestException("Maximale Anzahl von 5 Spalten erreicht!");
 		}
 		BoardColumn column = new BoardColumn();
 		column.setColumnTitle(createdto.getColumnTitle());
@@ -69,7 +72,7 @@ public class BoardColumnService implements IBoardColumnService {
 	@Override
 	public BoardColumnUpdateResponseDTO updateColumn(BoardColumnUpdateRequestDTO updatedto) {
 		BoardColumn column = boardColumnRepository.findById(updatedto.getBoardColumnID())
-				.orElseThrow(() -> new RuntimeException(
+				.orElseThrow(() -> new ResourceNotFoundException(
 						"Column mit der ID " + updatedto.getBoardColumnID() + " nicht gefunden!"));
 
 		User currentUser = securityUtils.getCurrentUserEntity();
@@ -97,14 +100,15 @@ public class BoardColumnService implements IBoardColumnService {
 	@Transactional
 	public void deleteColumn(Long columnID) {
 		BoardColumn column = boardColumnRepository.findById(columnID)
-				.orElseThrow(() -> new RuntimeException("Spalte nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Spalte nicht gefunden!"));
 
 		checkPermission(column.getBoard(), securityUtils.getCurrentUserEntity());
 
 		String title = column.getColumnTitle().toLowerCase().trim();
 		if (title.equals("to do") || title.equals("in progress") || title.equals("done") ||
-			title.equals("todo") || title.equals("bereit") || title.equals("erledigt") || title.equals("in arbeit")) {
-			throw new RuntimeException("Diese Standard-Spalte kann nicht gelöscht werden!");
+				title.equals("todo") || title.equals("bereit") || title.equals("erledigt")
+				|| title.equals("in arbeit")) {
+			throw new BadRequestException("Diese Standard-Spalte kann nicht gelöscht werden!");
 		}
 
 		boardColumnRepository.delete(column);
@@ -115,7 +119,7 @@ public class BoardColumnService implements IBoardColumnService {
 		boolean isOwner = board.getTeam().getOwner().getUserID().equals(user.getUserID());
 
 		if (!isAdmin && !isOwner) {
-			throw new RuntimeException("Keine Berechtigung, Spalten zu verwalten.");
+			throw new AccessDeniedException("Keine Berechtigung");
 		}
 	}
 }

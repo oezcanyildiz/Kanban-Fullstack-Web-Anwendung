@@ -15,6 +15,8 @@ import com.yildiz.teamsync.dto.BoardColumnUpdateRequestDTO;
 import com.yildiz.teamsync.dto.BoardColumnUpdateResponseDTO;
 import com.yildiz.teamsync.services.IBoardColumnService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/columns")
 public class BoardColumnController {
@@ -26,12 +28,12 @@ public class BoardColumnController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BoardColumnCreateResponseDTO> createColumn(@RequestBody BoardColumnCreateRequestDTO request) {
+    public ResponseEntity<BoardColumnCreateResponseDTO> createColumn(@RequestBody @Valid BoardColumnCreateRequestDTO request) {
         return ResponseEntity.ok(boardColumnService.createColumn(request));
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<BoardColumnUpdateResponseDTO> updateColumn(@RequestBody BoardColumnUpdateRequestDTO request) {
+    public ResponseEntity<BoardColumnUpdateResponseDTO> updateColumn(@RequestBody @Valid BoardColumnUpdateRequestDTO request) {
         return ResponseEntity.ok(boardColumnService.updateColumn(request));
     }
 

@@ -15,6 +15,8 @@ import com.yildiz.teamsync.dto.TaskUpdateRequestDTO;
 import com.yildiz.teamsync.dto.TaskUpdateResponseDTO;
 import com.yildiz.teamsync.services.ITaskService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
@@ -26,12 +28,12 @@ public class TaskController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<TaskCreateResponseDTO> createTask(@RequestBody TaskCreateRequestDTO request) {
+    public ResponseEntity<TaskCreateResponseDTO> createTask(@RequestBody @Valid TaskCreateRequestDTO request) {
         return ResponseEntity.ok(taskService.createTask(request));
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<TaskUpdateResponseDTO> updateTask(@RequestBody TaskUpdateRequestDTO request) {
+    public ResponseEntity<TaskUpdateResponseDTO> updateTask(@RequestBody @Valid TaskUpdateRequestDTO request) {
         return ResponseEntity.ok(taskService.updateTask(request));
     }
 

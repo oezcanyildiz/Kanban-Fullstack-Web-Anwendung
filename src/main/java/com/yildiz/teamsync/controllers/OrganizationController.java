@@ -3,6 +3,8 @@ package com.yildiz.teamsync.controllers;
 import com.yildiz.teamsync.services.IOrganizationManagementService;
 import com.yildiz.teamsync.services.IOrganizationRegisterService;
 
+import jakarta.validation.Valid;
+
 import com.yildiz.teamsync.dto.OrganizationRequestDTO;
 import com.yildiz.teamsync.dto.OrganizationResponseDTO;
 import java.util.List;
@@ -33,7 +35,7 @@ public class OrganizationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<OrganizationResponseDTO> register(
+    public ResponseEntity<OrganizationResponseDTO> register(@Valid 
             @RequestBody OrganizationRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(organizationRegisterService.registerOrganization(request));

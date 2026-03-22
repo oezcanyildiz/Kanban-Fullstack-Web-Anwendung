@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import com.yildiz.teamsync.dto.UserListResponseDTO;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-
+import com.yildiz.teamsync.exceptions.AccessDeniedException;
+import com.yildiz.teamsync.exceptions.BadRequestException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
+import com.yildiz.teamsync.exceptions.UnauthorizedException;
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.repositories.TeamMemberRepository; // Added
 import com.yildiz.teamsync.services.IOrganizationManagementService;
@@ -40,7 +43,7 @@ public class OrganizationManagementService implements IOrganizationManagementSer
 
         // Überprüft ob der angemeldete Admin und die gesuchte Org-ID zusammenpasst
         if (!adminOrgID.equals(organizationID)) {
-            throw new RuntimeException("Unbefugter Zugriff auf diese Organisation!");
+            throw new AccessDeniedException("Unbefugter Zugriff auf diese Organisation!");
         }
 
 	    List<User> employees = userRepository.findAllByOrganization_OrganizationID(organizationID); // Restored correct name
@@ -79,10 +82,10 @@ public class OrganizationManagementService implements IOrganizationManagementSer
 	    Long adminOrgID = currentAdmin.getOrganization().getOrganizationID();
 	    
 	    User user = userRepository.findById(userID)
-	            .orElseThrow(() -> new RuntimeException("User nicht gefunden."));
+	            .orElseThrow(() -> new ResourceNotFoundException("User nicht gefunden."));
 	
 	    if (!user.getOrganization().getOrganizationID().equals(adminOrgID)) {
-	        throw new RuntimeException("Unbefugter Zugriff!");
+	        throw new UnauthorizedException("Unbefugter Zugriff!");
 	    }
 	    
 	    user.setRole(UserRole.TEAM_LEADER);
@@ -103,7 +106,7 @@ public class OrganizationManagementService implements IOrganizationManagementSer
 	            .orElseThrow(() -> new RuntimeException("User nicht gefunden."));
 	
 	    if (!user.getOrganization().getOrganizationID().equals(adminOrgID)) {
-	        throw new RuntimeException("Unbefugter Zugriff!");
+	        throw new UnauthorizedException("Unbefugter Zugriff!");
 	    }
 	    
 	    user.setRole(UserRole.USER);
@@ -124,11 +127,11 @@ public class OrganizationManagementService implements IOrganizationManagementSer
 	            .orElseThrow(() -> new RuntimeException("User nicht gefunden."));
 
 	    if (!user.getOrganization().getOrganizationID().equals(adminOrgID)) {
-	        throw new RuntimeException("Unbefugter Zugriff!");
+	        throw new UnauthorizedException("Unbefugter Zugriff!");
 	    }
 
 	    if (user.getUserID().equals(currentAdmin.getUserID())) {
-	        throw new RuntimeException("Ein Admin kann sich nicht selbst aus der Organisation löschen.");
+	        throw new BadRequestException("Ein Admin kann sich nicht selbst aus der Organisation löschen.");
 	    }
 
 	    userRepository.delete(user);

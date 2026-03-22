@@ -1,48 +1,72 @@
-# TeamSync – Collaborative Real-Time Kanban Board
+# TeamSync – Enterprise Workspace & Kanban Management
 
-**TeamSync** ist eine hochverfügbare Kollaborations-Plattform, die für die effiziente Teamarbeit in Echtzeit entwickelt wurde. Das Projekt dient der Vertiefung von Enterprise-Entwurfsmustern und der Bewältigung komplexer Backend-Herausforderungen in einer Java-Umgebung.
+**TeamSync** ist eine umfassende Fullstack-Webanwendung zur effizienten Verwaltung von Organisationen, Teams und Aufgaben. Das Projekt wurde entwickelt, um fortgeschrittene Enterprise-Architekturmuster, sichere Authentifizierungsmechanismen und eine moderne React-Oberfläche in einem realen Anwendungsfall zu vereinen.
 
-## 🚀 Kern-Features & Backend-Komplexität
-
-Dieses Projekt fokussiert sich auf fortgeschrittene Architektur-Muster, insbesondere die Absicherung von Echtzeit-Kommunikation:
-
-* **Secure Real-Time Architecture:** Implementierung einer ereignisgesteuerten Synchronisation mittels **Spring WebSockets (STOMP)**. Besonderer Fokus liegt auf der **Zustandsverwaltung** und der Vermeidung von Race Conditions bei parallelen Zugriffen.
-* **JWT over WebSockets:** Da Standard-WebSocket-Verbindungen keine Header wie klassische REST-Calls unterstützen, wurde eine sichere Lösung zur **Token-Validierung beim Handshake und Channel-Interception** implementiert, um JWT-basierte Authentifizierung auch im Echtzeit-Stream zu gewährleisten.
-* **Granular Security (RBAC):** Ein detailliertes Berechtigungskonzept mit **Spring Security**, das Zugriffsrechte dynamisch auf Workspace- und Board-Ebene validiert, bevor Nachrichten über den Message Broker verteilt werden.
-* **Automated Testing:** Absicherung der geschäftskritischen Logik durch eine umfassende Test-Suite mit **JUnit 5 und Mockito**.
-## 🛠 Tech-Stack
-
-### Backend
-* **Java 21:** Nutzung moderner Sprachfeatures und funktionaler Programmierung.
-* **Spring Boot 4.0.2:** Fullstack-Backend mit Spring Data JPA, Spring Security und WebSockets.
-* **JSON Web Tokens (JWT):** Sicherer, zustandsloser Authentifizierungsmechanismus.
-* **PostgreSQL:** Relationales Datenbankdesign mit Fokus auf Datenintegrität.
-* **Hibernate / JPA:** Effizientes Object-Relational Mapping (ORM).
-
-### DevOps & Tools
-* **Docker:** Containerisierung der Anwendung für konsistente Deployment-Umgebungen.
-* **Maven:** Professionelles Projekt- und Build-Management.
-* **Git:** Strukturierte Versionsverwaltung.
-
-## 🏗 Architektur
-
-Die Anwendung folgt einer strikten **3-Tier-Architektur** (Controller, Service, Repository), um eine saubere Trennung von Geschäftslogik und Datenhaltung zu garantieren. Besonderer Wert wurde auf die Anwendung von Design Patterns und MVC-Strukturen gelegt.
-## 🚦 Projektstatus
-
-Das Projekt befindet sich aktuell in der aktiven Entwicklung (Backend-Fokus).
-### * **Abgeschlossen:** Core-Backend, relationales Datenbank-Schema, JWT-Infrastruktur.
-### * **In Arbeit:** Optimierung der WebSocket-Interceptors für die Token-Validierung und Real-Time-Synchronisation.
+Dieses Projekt dient als Showcase für mein Backend-Engineering (Spring Boot 3, Java 21). Das Frontend wurde als modernes UI mittels "Vibecoding" (AI-unterstützte Programmierung durch Antigravity) und Tailwind CSS realisiert, um zu zeigen, wie ich als Backend-Spezialist vollständige Produkte mithilfe neuester KI-Werkzeuge iterativ umsetzen kann.
 
 ---
 
-## 💻 Installation & Start (Development)
+## 🚀 Kern-Features (Aktuelle Version V1)
 
-1.  **Repository klonen:**
-    ```bash
-    git clone https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung
-    ```
-2.  **Anwendung starten:**
-    ```bash
-    mvn spring-boot:run
-    ```https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung# Kanban-Fullstack-Web-Anwendung
-Kanban Fullstack Web Anwendung
+* **Mandantenfähigkeit (Multi-Tenancy):** Benutzer sind strikt in Organisationen isoliert. Einladungen erfolgen über generierte Organisations-Codes.
+* **Granulares RBAC (Role-Based Access Control):** Detailliertes Berechtigungskonzept mit den Rollen `ORG_ADMIN`, `TEAM_LEADER` und `USER`. Die Spring Security Konfiguration blockiert Zugriffe basierend auf der Hierarchie dynamisch auf Workspace- und Board-Ebene.
+* **Zustandslose JWT-Authentifizierung:** Sichere Absicherung der REST-API mittels JSON Web Tokens, verarbeitet über maßgeschneiderte Security Filter-Chains.
+* **API Security & Rate Limiting:** Serverseitiger DDoS-Schutz und gezieltes Rate-Limiting bestimmter Endpunkte mittels `Bucket4j`.
+* **Interaktives Frontend (Vibecoding):** Eine vollständige, reaktionsschnelle Single-Page-Application (SPA), erbaut durch iteratives AI-Prompting und Prompt-Engineering.
+* **Saubere Enterprise-Architektur:** Echte 3-Tier-Architektur (Controller, Service, Repository) im Backend, konsequente Nutzung von DTOs (Data Transfer Objects) zur Kapselung von Entitäten und ein `GlobalExceptionHandler` für konsistente Fehlerbehandlung.
+
+---
+
+## 🛠 Tech-Stack
+
+### Backend
+* **Java 21:** Nutzung moderner Sprachfeatures.
+* **Spring Boot 3.x:** Fullstack-Backend mit Spring Data JPA, Spring Security und REST-Controllern.
+* **JSON Web Tokens (JWT):** Sicherer, zustandsloser Authentifizierungsmechanismus (jjwt-Framework).
+* **PostgreSQL:** Relationales Datenbankdesign mit Fokus auf Datenintegrität und referenziellen Constraints.
+* **Hibernate / JPA:** Effizientes Object-Relational Mapping (ORM).
+* **Bucket4j:** API Rate Limiting für sichere, produktionsreife Schnittstellen.
+
+### Frontend (Vibecoding)
+* **Tailwind CSS:** Modernes, responsives und sauberes UI-Design.
+* **AI-Assisted Development:** Frontend primär per "Vibecoding" (Antigravity LLM Prompting) gebaut, gekoppelt mit meinem bestehenden Wissen in HTML5 & CSS3.
+
+---
+
+## 🗺️ Roadmap & Zukünftige Features (Version V2)
+
+Für das nächste große Release (V2) ist der Umbau in eine vollständige **Real-Time Collaboration Platform** geplant. Die Vorbereitungen in der Architektur (`spring-boot-starter-websocket`) sind bereits getroffen:
+
+1. **Secure Real-Time Chat (WebSockets):**
+   - Implementierung eines Team-Chats über **Spring WebSockets (STOMP)**.
+   - **JWT over WebSockets:** Handshake-Interceptors, die das Token bereits beim Verbindungsaufbau validieren.
+2. **Live Board Synchronization:**
+   - Verschiebungen im Kanban-Board sollen künftig direkt über den Message Broker an alle verbundenen Teammitglieder gepusht werden, um "Optimistic Locking Exceptions" bei parallelem Arbeiten zu vermeiden.
+3. **Erweiterte Testabdeckung:**
+   - Ausbau der automatisierten Backend-Tests (Unit- und Integrationstests) mit **JUnit 5, Mockito und Testcontainers**.
+4. **CI/CD & Docker:**
+   - Bereitstellung von isolierten `Dockerfiles` für Frontend und Backend zur Automatisierung des Deployments.
+
+---
+
+## 💻 Installation & Start (Docker Quickstart)
+
+Du kannst die komplette Anwendung (Datenbank, Backend und Frontend) mit einem einzigen Befehl starten, ohne Java oder Node.js auf deinem Computer installieren zu müssen!
+
+1. **Repository klonen:**
+   ```bash
+   git clone https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung
+   cd Kanban-Fullstack-Web-Anwendung
+   ```
+
+2. **Applikation vollautomatisch starten:**
+   Stelle sicher, dass **Docker** (z.B. Docker Desktop) auf deinem PC läuft, und führe aus:
+   ```bash
+   docker-compose up --build -d
+   ```
+
+3. **Applikation öffnen:**
+   Das war's! Öffne nun deinen Browser unter:
+   👉 **[http://localhost:5173](http://localhost:5173)**
+
+*Hinweis: Beim allerersten Start lädt Docker die Bilder (PostgreSQL, Java, Node, Nginx) herunter und baut das Projekt. Das kann wenige Minuten dauern.*

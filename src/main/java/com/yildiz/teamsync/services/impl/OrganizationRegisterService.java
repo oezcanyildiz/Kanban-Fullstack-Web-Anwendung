@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.yildiz.teamsync.dto.OrganizationRequestDTO;
 import com.yildiz.teamsync.dto.OrganizationResponseDTO;
 import com.yildiz.teamsync.entities.Organization;
-
+import com.yildiz.teamsync.exceptions.ConflictException;
 import com.yildiz.teamsync.repositories.OrganizationRepository;
 import com.yildiz.teamsync.services.IOrganizationRegisterService;
 
@@ -27,7 +27,7 @@ public class OrganizationRegisterService implements IOrganizationRegisterService
 		String requestEmail=requestdto.getOrganizationEmail().toLowerCase().trim();
 		
 		if(organizationRepository.findByOrganizationEmail(requestEmail).isPresent()){
-			throw new IllegalArgumentException("Mit dieser Email existiert schon ein Organization.");
+			throw new ConflictException("Mit dieser Email existiert schon ein Organization.");
 		}
 		Organization organization = new Organization();
 		organization.setOrganizationName(requestdto.getOrganizationName());

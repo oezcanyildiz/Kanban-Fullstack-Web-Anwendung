@@ -14,6 +14,8 @@ import com.yildiz.teamsync.dto.UserRegisterResponseDTO;
 import com.yildiz.teamsync.services.IAuthService;
 import com.yildiz.teamsync.services.impl.AuthService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 
@@ -27,12 +29,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO request) {
+    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody @Valid UserLoginRequestDTO request) {
         return ResponseEntity.ok(authService.userLogin(request));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserRegisterResponseDTO> register(@RequestBody UserRegisterRequestDTO request) {
+    public ResponseEntity<UserRegisterResponseDTO> register(@RequestBody @Valid UserRegisterRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.userRegister(request));
     }
 }

@@ -13,7 +13,9 @@ import com.yildiz.teamsync.entities.BoardColumn;
 import com.yildiz.teamsync.entities.BoardTask;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-
+import com.yildiz.teamsync.exceptions.AccessDeniedException;
+import com.yildiz.teamsync.exceptions.BadRequestException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
 import com.yildiz.teamsync.repositories.BoardColumnRepository;
 import com.yildiz.teamsync.repositories.BoardTaskRepository;
 import com.yildiz.teamsync.repositories.TeamMemberRepository;
@@ -52,13 +54,13 @@ public class TaskService implements ITaskService {
 
 		long totalTasksOnBoard = taskRepository.countByBoardColumn_Board_BoardIDAndDeletedFalse(board.getBoardID());
 		if (totalTasksOnBoard >= 50) {
-			throw new RuntimeException("Das Board-Limit von 50 Tasks wurde erreicht!");
+			throw new BadRequestException("Das Board-Limit von 50 Tasks wurde erreicht!");
 		}
 
 
 		long tasksInColumn = taskRepository.countByBoardColumn_BoardColumnIDAndDeletedFalse(column.getBoardColumnID());
 		if (column.getWipLimit() != null && tasksInColumn >= column.getWipLimit()) {
-			throw new RuntimeException("WIP-Limit dieser Spalte erreicht!");
+			throw new BadRequestException("WIP-Limit dieser Spalte erreicht!");
 		}
 
 		BoardTask task = new BoardTask();
@@ -90,7 +92,7 @@ public class TaskService implements ITaskService {
 	public TaskUpdateResponseDTO updateTask(TaskUpdateRequestDTO requestdto) {
 		// 1. Task laden
 		BoardTask task = taskRepository.findById(requestdto.getTaskID())
-				.orElseThrow(() -> new RuntimeException("Task nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Task nicht gefunden!"));
 
 		// 2. Berechtigung prüfen (Darf dieses Team-Mitglied das?)
 		checkTeamMemberPermission(task.getBoardColumn().getBoard(), securityUtils.getCurrentUserEntity());
@@ -99,12 +101,12 @@ public class TaskService implements ITaskService {
 		// Wenn die columnID im DTO anders ist als die aktuelle columnID des Tasks:
 		if (!task.getBoardColumn().getBoardColumnID().equals(requestdto.getColumnID())) {
 			BoardColumn targetColumn = boardColumnRepository.findById(requestdto.getColumnID())
-					.orElseThrow(() -> new RuntimeException("Ziel-Spalte nicht gefunden!"));
+					.orElseThrow(() -> new ResourceNotFoundException("Ziel-Spalte nicht gefunden!"));
 
 			// WIP-Limit der ZIEL-Spalte prüfen
 			long tasksInTarget = taskRepository.countByBoardColumn_BoardColumnIDAndDeletedFalse(targetColumn.getBoardColumnID());
 			if (targetColumn.getWipLimit() != null && tasksInTarget >= targetColumn.getWipLimit()) {
-				throw new RuntimeException("Ziel-Spalte ist voll! WIP-Limit erreicht.");
+				throw new BadRequestException("Ziel-Spalte ist voll! WIP-Limit erreicht.");
 			}
 			task.setBoardColumn(targetColumn); // Spalte wechseln
 		}
@@ -119,7 +121,7 @@ public class TaskService implements ITaskService {
 
 		if (requestdto.getAssigneeID() != null) {
 			User assigneeUser = userRepository.findById(requestdto.getAssigneeID())
-					.orElseThrow(() -> new RuntimeException("Zuzuweisender User nicht gefunden!"));
+					.orElseThrow(() -> new ResourceNotFoundException("Zuzuweisender User nicht gefunden!"));
 
 			task.setAssignee(assigneeUser);
 		}
@@ -147,7 +149,7 @@ public class TaskService implements ITaskService {
 	public void deleteTask(Long taskID) {
 		// 1. Task laden
 		BoardTask task = taskRepository.findById(taskID)
-				.orElseThrow(() -> new RuntimeException("Task mit der ID " + taskID + " wurde nicht gefunden."));
+				.orElseThrow(() -> new ResourceNotFoundException("Task mit der ID " + taskID + " wurde nicht gefunden."));
 
 		User currentUser = securityUtils.getCurrentUserEntity();
 
@@ -172,7 +174,7 @@ public class TaskService implements ITaskService {
 				user.getUserID());
 
 		if (!isAdmin && !isOwner && !isMember) {
-			throw new RuntimeException("Zugriff verweigert: Du gehörst nicht zu diesem Team!");
+			throw new AccessDeniedException("Zugriff verweigert: Du gehörst nicht zu diesem Team!");
 		}
 	}
 
@@ -181,7 +183,7 @@ public class TaskService implements ITaskService {
 		boolean isOwner = board.getTeam().getOwner().getUserID().equals(user.getUserID());
 
 		if (!isAdmin && !isOwner) {
-			throw new RuntimeException("Keine Berechtigung, Spalten zu verwalten.");
+			throw new AccessDeniedException("Keine Berechtigung, Spalten zu verwalten.");
 		}
 	}
 

@@ -15,7 +15,8 @@ import com.yildiz.teamsync.entities.BoardColumn;
 import com.yildiz.teamsync.entities.Team;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
-
+import com.yildiz.teamsync.exceptions.AccessDeniedException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
 import com.yildiz.teamsync.repositories.BoardColumnRepository;
 import com.yildiz.teamsync.repositories.BoardRepository;
 import com.yildiz.teamsync.repositories.TeamRepository;
@@ -63,7 +64,7 @@ public class BoardService implements IBoardService {
 	public BoardCreateResponseDTO createBoard(BoardCreateRequestDTO createdto) {
 		// 1. Team holen und Berechtigung prüfen (Dein Code - super!)
 		Team team = teamRepository.findById(createdto.getTeamID())
-				.orElseThrow(() -> new RuntimeException("Team nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Team nicht gefunden!"));
 
 		User currentUser = securityUtils.getCurrentUserEntity();
 
@@ -71,7 +72,7 @@ public class BoardService implements IBoardService {
 		boolean isOwner = team.getOwner().getUserID().equals(currentUser.getUserID());
 
 		if (!isAdmin && !isOwner) {
-			throw new RuntimeException("Keine Berechtigung, ein Board für dieses Team zu erstellen.");
+			throw new AccessDeniedException("Keine Berechtigung, ein Board für dieses Team zu erstellen.");
 		}
 
 		Board board = new Board();
@@ -108,7 +109,7 @@ public class BoardService implements IBoardService {
 	public BoardUpdateResponseDTO updateBoard(BoardUpdateRequestDTO updateddto) {
 		// 1. Bestehendes Board laden
 		Board board = boardRepository.findById(updateddto.getBoardID())
-				.orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Board nicht gefunden!"));
 
 		// 2. Berechtigung prüfen
 		User currentUser = securityUtils.getCurrentUserEntity();
@@ -116,7 +117,7 @@ public class BoardService implements IBoardService {
 		boolean isOwner = board.getTeam().getOwner().getUserID().equals(currentUser.getUserID());
 
 		if (!isAdmin && !isOwner) {
-			throw new RuntimeException("Nur der Admin oder Team-Owner darf das Board bearbeiten.");
+			throw new AccessDeniedException("Nur der Admin oder Team-Owner darf das Board bearbeiten.");
 		}
 
 		board.setBoardName(updateddto.getNewBoardName());
@@ -139,7 +140,7 @@ public class BoardService implements IBoardService {
 		Board board = boardRepository.findById(boardID)
 				.filter(b -> !b.isDeleted())
 				.filter(b -> !b.getTeam().isDeleted())
-				.orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Board nicht gefunden!"));
 
 		User currentUser = securityUtils.getCurrentUserEntity();
 
@@ -261,16 +262,11 @@ public class BoardService implements IBoardService {
 		boolean isOwner = board.getTeam().getOwner().getUserID().equals(currentUser.getUserID());
 
 		if (!isAdmin && !isOwner) {
-			throw new RuntimeException("Nur der Admin oder der Teamleiter darf dieses Board löschen.");
+			throw new AccessDeniedException("Nur der Admin oder der Teamleiter darf dieses Board löschen.");
 		}
 
 		board.setDeleted(true);
 		boardRepository.save(board);
 	}
 
-	///////////////////////////////
-	/// ///
-	/// HILFSMETHODEN ///
-	/// ///
-	///////////////////////////////
 }

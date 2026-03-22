@@ -1,14 +1,11 @@
-@import './fonts.css';
-@import './tailwind.css';
-@import './theme.css';
-
-/* Custom Animations for Landing Page */
+/* Animation für "Einfach" (Shake) */
 @keyframes shakeAction {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-8px); }
   75% { transform: translateX(8px); }
 }
 
+/* Animation für "Sicher" (Drop + Erdbeben) */
 @keyframes dropAndEarthquake {
   0% { transform: translateY(-150px); opacity: 0; }
   50% { transform: translateY(0); opacity: 1; }
@@ -19,6 +16,7 @@
   100% { transform: translate(0, 0); opacity: 1; }
 }
 
+/* Animation für "Open Source" (Fade In) */
 @keyframes simpleFade {
   from { opacity: 0; filter: blur(5px); }
   to { opacity: 1; filter: blur(0); }

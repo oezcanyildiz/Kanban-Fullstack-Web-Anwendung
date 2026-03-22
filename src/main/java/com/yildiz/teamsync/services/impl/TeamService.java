@@ -12,6 +12,7 @@ import com.yildiz.teamsync.entities.Team;
 import com.yildiz.teamsync.entities.TeamMember;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
+import com.yildiz.teamsync.exceptions.AccessDeniedException;
 import com.yildiz.teamsync.repositories.TeamRepository;
 import com.yildiz.teamsync.repositories.TeamMemberRepository;
 import com.yildiz.teamsync.repositories.BoardRepository;
@@ -39,7 +40,7 @@ public class TeamService implements ITeamService {
         User currentUser = securityUtils.getCurrentUserEntity();
 
         if (currentUser.getRole() != UserRole.ORG_ADMIN && currentUser.getRole() != UserRole.TEAM_LEADER) {
-            throw new RuntimeException("Nur Admins oder Team-Leader können Teams erstellen.");
+            throw new AccessDeniedException("Nur Admins oder Team-Leader können Teams erstellen.");
         }
 
         Team team = new Team();
@@ -66,20 +67,17 @@ public class TeamService implements ITeamService {
     @Transactional(readOnly = true)
     public List<TeamCreateResponseDTO> getMyTeams() {
         User currentUser = securityUtils.getCurrentUserEntity();
-        
-        List<Team> teams = teamRepository.findAll().stream()
-                .filter(t -> t.getOwner().getUserID().equals(currentUser.getUserID()))
-                .filter(t -> !t.isDeleted())
-                .toList();
-        
+
+        // Teams finden, wo der User Owner ist ODER Member
+        List<Team> teams = teamRepository.findTeamsByUserAsOwnerOrMember(currentUser.getUserID());
         return teams.stream()
                 .map(team -> {
                     TeamCreateResponseDTO dto = new TeamCreateResponseDTO();
                     dto.setTeamID(team.getTeamID());
                     dto.setTeamName(team.getTeamName());
-                    
+
                     java.util.List<BoardListResponseDTO> boards = boardRepository.findAll().stream()
-                        .filter(b -> b.getTeam().getTeamID().equals(team.getTeamID()))
+                        .filter(b -> b.getTeam() != null && b.getTeam().getTeamID() != null && b.getTeam().getTeamID().equals(team.getTeamID()))
                         .filter(b -> !b.isDeleted())
                         .map(b -> {
                             BoardListResponseDTO bd = new BoardListResponseDTO();
@@ -90,7 +88,7 @@ public class TeamService implements ITeamService {
                         })
                         .toList();
                     dto.setBoards(boards);
-                    
+
                     return dto;
                 })
                 .collect(java.util.stream.Collectors.toList());
@@ -107,7 +105,7 @@ public class TeamService implements ITeamService {
         boolean isOwner = team.getOwner().getUserID().equals(currentUser.getUserID());
 
         if (!isAdmin && !isOwner) {
-            throw new RuntimeException("Nur der Admin oder der Team-Owner darf dieses Team löschen.");
+            throw new AccessDeniedException("Nur der Admin oder der Team-Owner darf dieses Team löschen.");
         }
 
         team.setDeleted(true);

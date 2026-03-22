@@ -10,8 +10,10 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class JwtUtils {
 
     @Value("${teamsync.jwt.secret}")
@@ -46,11 +48,16 @@ public class JwtUtils {
 
     // 3. TOKEN VALIDIEREN (Ist es echt? Ist es abgelaufen?)
     public boolean validateJwtToken(String authToken) {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            log.error("JWT Secret ist nicht gesetzt. Bitte setzen Sie teamsync.jwt.secret in Umgebungsvariablen oder application.properties.");
+            return false;
+        }
+
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("Ungültiges JWT Token: " + e.getMessage());
+            log.error("Ungültiges JWT Token: {}", e.getMessage());
         }
         return false;
     }

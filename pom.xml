@@ -62,6 +62,11 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.36</version>
@@ -141,8 +146,6 @@
 			        <source>21</source>
 			        <target>21</target>
 			        <release>21</release>
-					<executable>C:\Users\Student\.antigravity\extensions\redhat.java-1.52.0-win32-x64\jre\21.0.9-win32-x86_64\bin\javac.exe</executable>
-					<fork>true</fork>
 			        <annotationProcessorPaths>
 			            <path>
 			                <groupId>org.projectlombok</groupId>

@@ -6,6 +6,9 @@ import com.yildiz.teamsync.entities.Team;
 import com.yildiz.teamsync.entities.TeamMember;
 import com.yildiz.teamsync.entities.User;
 import com.yildiz.teamsync.enums.UserRole;
+import com.yildiz.teamsync.exceptions.AccessDeniedException;
+import com.yildiz.teamsync.exceptions.ConflictException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
 import com.yildiz.teamsync.repositories.TeamMemberRepository;
 import com.yildiz.teamsync.repositories.TeamRepository;
 import com.yildiz.teamsync.repositories.UserRepository;
@@ -35,7 +38,7 @@ public class TeamMemberService implements ITeamMemberService {
     public void addMemberToTeam(TeamMemberAddRequestDTO requestdto) {
         // 1. Team und den aktuell eingeloggten User (Leader/Admin) holen
         Team team = teamRepository.findById(requestdto.getTeamID())
-                .orElseThrow(() -> new RuntimeException("Team nicht gefunden!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Team nicht gefunden!"));
 
         User currentUser = securityUtils.getCurrentUserEntity();
 
@@ -44,7 +47,7 @@ public class TeamMemberService implements ITeamMemberService {
         boolean isTeamLeader = team.getOwner().getUserID().equals(currentUser.getUserID());
 
         if (!isAdmin && !isTeamLeader) {
-            throw new RuntimeException("Nur der Teamleader oder ein Admin kann Mitglieder hinzufügen!");
+            throw new AccessDeniedException("Nur der Teamleader oder ein Admin kann Mitglieder hinzufügen!");
         }
 
         // 3. PRÜFUNG: Ist der neue Mitarbeiter schon im Team?
@@ -52,12 +55,12 @@ public class TeamMemberService implements ITeamMemberService {
                 requestdto.getTeamID(), requestdto.getUserID());
 
         if (alreadyMember) {
-            throw new RuntimeException("Dieser User ist bereits Mitglied im Team.");
+            throw new ConflictException("Dieser User ist bereits Mitglied im Team.");
         }
 
         // 4. Den neuen User laden
         User newUser = userRepository.findById(requestdto.getUserID())
-                .orElseThrow(() -> new RuntimeException("Zuzuweisender User wurde nicht gefunden!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Zuzuweisender User wurde nicht gefunden!"));
 
         // 5. Verknüpfung erstellen und speichern
         TeamMember newMembership = new TeamMember();

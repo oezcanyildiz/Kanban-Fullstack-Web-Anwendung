@@ -15,6 +15,8 @@ import com.yildiz.teamsync.dto.TeamMemberAddRequestDTO;
 import com.yildiz.teamsync.dto.UserSearchResponseDTO;
 import com.yildiz.teamsync.services.ITeamMemberService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/team-members")
 public class TeamMemberController {
@@ -26,7 +28,7 @@ public class TeamMemberController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addMemberToTeam(@RequestBody TeamMemberAddRequestDTO request) {
+    public ResponseEntity<Void> addMemberToTeam(@RequestBody @Valid TeamMemberAddRequestDTO request) {
         teamMemberService.addMemberToTeam(request);
         return ResponseEntity.ok().build();
     }

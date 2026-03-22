@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import com.yildiz.teamsync.dto.UserProfileRequestDTO;
 import com.yildiz.teamsync.dto.UserProfileResponseDTO;
 import com.yildiz.teamsync.entities.User;
+import com.yildiz.teamsync.exceptions.BadRequestException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.services.IUserService;
 import com.yildiz.teamsync.config.SecurityUtils;
@@ -31,11 +33,11 @@ public class UserService implements IUserService {
 	@Override
 	public UserProfileResponseDTO updateProfile(UserProfileRequestDTO requestdto) {
 		User currentUser = getAuthenticatedUser();
-		User user = userRepository.findById(currentUser.getUserID()).orElseThrow(()-> new RuntimeException("User wurde nicht gefunden"));
+		User user = userRepository.findById(currentUser.getUserID()).orElseThrow(()-> new ResourceNotFoundException("User wurde nicht gefunden"));
 	
 		if(requestdto.getUserPassword() != null && !requestdto.getOldPassword().isBlank()) {
 			if (!passwordEncoder.matches(requestdto.getOldPassword(), user.getUserPassword())) {
-			    throw new RuntimeException("Altes Passwort nicht korrekt.");
+			    throw new BadRequestException("Altes Passwort nicht korrekt.");
 			}
 			user.setUserPassword(passwordEncoder.encode(requestdto.getUserPassword()));
 		}
