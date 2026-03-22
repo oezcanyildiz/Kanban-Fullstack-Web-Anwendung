@@ -35,7 +35,7 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:80"  # Expose on 5173 to match familiar dev port for users, or 80 depending on preference.
+      - "80:80"
     depends_on:
       - backend
 
