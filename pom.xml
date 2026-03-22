@@ -69,7 +69,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.36</version>
+			<version>1.18.38</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -150,31 +150,9 @@
 			            <path>
 			                <groupId>org.projectlombok</groupId>
 			                <artifactId>lombok</artifactId>
-			                <version>1.18.36</version>
+			                <version>1.18.38</version>
 			            </path>
 			        </annotationProcessorPaths>
-					<compilerArgs>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-						<arg>--add-opens</arg>
-						<arg>jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-					</compilerArgs>
 			    </configuration>
 			</plugin>
 			<plugin>
