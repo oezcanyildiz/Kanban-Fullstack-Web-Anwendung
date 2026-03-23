@@ -33,7 +33,7 @@ Die README.md bewirbt "Secure Real-Time Architecture" mit Spring WebSockets und 
 Du hast bereits eine compose.yaml für die Datenbank, was schon sehr gut ist. Lösung für den "Wow"-Effekt:
 
 Füge ein Dockerfile für das Spring Boot Backend und ein Dockerfile für das React-Frontend hinzu.
-Verbinde alles über eine docker-compose.yml. Ein Arbeitgeber möchte ein Projekt klonen und mit dem simplen Befehl docker-compose up komplett starten können.
+Verbinde alles über eine docker-compose.yml. Ein Arbeitgeber möchte ein Projekt klonen und mit dem simplen Befehl docker compose up komplett starten können.
 Optional: Nutze GitHub Actions, um bei jedem Push ins Repository automatisch den Maven Build und (zukünftige) Tests laufen zu lassen. Das zeigt DevOps-Verständnis!
 4. API Dokumentation (Nice-to-have)
 Um komplett wie ein Profi zu wirken, binde Swagger / OpenAPI ein (die Dependency springdoc-openapi-starter-webmvc-ui). Damit generierst du automatisch eine interaktive API-Dokumentationsoberfläche unter /swagger-ui.html. Das lieben Frontend-Entwickler und Architekten!

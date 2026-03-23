@@ -284,7 +284,7 @@ export function LandingPage() {
               <div className="mb-4">git clone https://github.com/oezcanyildiz/Kanban-Fullstack-Web-Anwendung</div>
               
               <div className="text-emerald-400/80 mb-1"># 2. Vollautomatisch starten</div>
-              <div>docker-compose up --build -d</div>
+              <div>docker compose up --build -d</div>
             </div>
           </div>
 

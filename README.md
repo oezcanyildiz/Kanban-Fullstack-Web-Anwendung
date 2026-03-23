@@ -62,11 +62,13 @@ Du kannst die komplette Anwendung (Datenbank, Backend und Frontend) mit einem ei
 2. **Applikation vollautomatisch starten:**
    Stelle sicher, dass **Docker** (z.B. Docker Desktop) auf deinem PC läuft, und führe aus:
    ```bash
-   docker-compose up --build -d
+   docker compose up --build -d
    ```
 
 3. **Applikation öffnen:**
-   Das war's! Öffne nun deinen Browser unter:
-   👉 **[http://localhost:5173](http://localhost:5173)**
+   Falls du eine Domain (`boardly.one`) konfiguriert hast, regelt Caddy nun automatisch das SSL-Zertifikat.
+   👉 **[https://boardly.one](https://boardly.one)**
+
+   *Lokal ohne Domain erreichbar unter: [http://localhost:8081](http://localhost:8081) (falls Port 8081 gemappt ist).*
 
 *Hinweis: Beim allerersten Start lädt Docker die Bilder (PostgreSQL, Java, Node, Nginx) herunter und baut das Projekt. Das kann wenige Minuten dauern.*
