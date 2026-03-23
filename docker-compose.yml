@@ -32,7 +32,8 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
-    # ports removed: traffic now flows through Caddy
+    ports:
+      - "8081:80"
     depends_on:
       - backend
 

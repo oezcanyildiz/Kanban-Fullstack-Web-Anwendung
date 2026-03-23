@@ -69,6 +69,6 @@ Du kannst die komplette Anwendung (Datenbank, Backend und Frontend) mit einem ei
    Falls du eine Domain (`boardly.one`) konfiguriert hast, regelt Caddy nun automatisch das SSL-Zertifikat.
    👉 **[https://boardly.one](https://boardly.one)**
 
-   *Lokal ohne Domain erreichbar unter: [http://localhost:8081](http://localhost:8081) (falls Port 8081 gemappt ist).*
+   *Lokal ohne Domain erreichbar unter: **[http://localhost](http://localhost)** (Port 80).*
 
 *Hinweis: Beim allerersten Start lädt Docker die Bilder (PostgreSQL, Java, Node, Nginx) herunter und baut das Projekt. Das kann wenige Minuten dauern.*
