@@ -46,7 +46,7 @@ public class TaskService implements ITaskService {
 	@Transactional
 	public TaskCreateResponseDTO createTask(TaskCreateRequestDTO requestdto) {
 		BoardColumn column = boardColumnRepository.findById(requestdto.getColumnID())
-				.orElseThrow(() -> new RuntimeException("Spalte nicht gefunden."));
+				.orElseThrow(() -> new ResourceNotFoundException("Spalte nicht gefunden."));
 		Board board = column.getBoard();
 
 		User currentUser = securityUtils.getCurrentUserEntity();
@@ -121,10 +121,20 @@ public class TaskService implements ITaskService {
 
 		if (requestdto.getAssigneeID() != null) {
 			User assigneeUser = userRepository.findById(requestdto.getAssigneeID())
-					.orElseThrow(() -> new ResourceNotFoundException("Zuzuweisender User nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Zuzuweisender User nicht gefunden!"));
+
+			// NEU: Ist der Assignee im Team dieses Boards?
+			Long teamID = task.getBoardColumn().getBoard().getTeam().getTeamID();
+			boolean isMember = teamMemberRepository.existsByTeam_TeamIDAndUser_UserID(teamID, assigneeUser.getUserID());
+			boolean isOwner = task.getBoardColumn().getBoard().getTeam().getOwner().getUserID().equals(assigneeUser.getUserID());
+
+			if (!isMember && !isOwner) {
+				throw new BadRequestException("Dieser User gehört nicht zu diesem Team!");
+			}
 
 			task.setAssignee(assigneeUser);
 		}
+
 
 		BoardTask updatedTask = taskRepository.save(task);
 

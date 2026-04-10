@@ -1,5 +1,6 @@
 package com.yildiz.teamsync.config;
 
+import com.yildiz.teamsync.exceptions.RateLimitExceededException;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.http.HttpServletRequest;

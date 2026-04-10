@@ -1,6 +1,8 @@
 package com.yildiz.teamsync.services.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,7 +157,13 @@ public class BoardService implements IBoardService {
 			responseDTO.setBoardID(board.getBoardID());
 			responseDTO.setBoardName(board.getBoardName());
 
-			// 3. Spalten laden und umwandeln
+			// 3. Alle Tasks des Boards in einem einzigen Query laden und nach Spalte gruppieren
+			List<BoardTask> allTasks = boardTaskRepository
+					.findByBoardColumn_Board_BoardIDAndDeletedFalseOrderByPositionAsc(board.getBoardID());
+			Map<Long, List<BoardTask>> tasksByColumn = allTasks.stream()
+					.collect(Collectors.groupingBy(t -> t.getBoardColumn().getBoardColumnID()));
+
+			// 4. Spalten laden und umwandeln
 			List<BoardColumn> columns = boardColumnRepository
 					.findByBoard_BoardIDOrderByColumnPositionAsc(board.getBoardID());
 			List<BoardColumnDTO> columnDTOs = columns.stream().map(col -> {
@@ -165,9 +173,8 @@ public class BoardService implements IBoardService {
 				colDTO.setColumnPosition(col.getColumnPosition());
 				colDTO.setWipLimit(col.getWipLimit());
 
-				// 4. Tasks für diese Spalte laden (nicht-gelöschte)
-				List<BoardTask> tasks = boardTaskRepository
-						.findByBoardColumn_BoardColumnIDAndDeletedFalseOrderByPositionAsc(col.getBoardColumnID());
+				// Tasks aus der Map lesen — kein DB-Zugriff mehr in der Schleife
+				List<BoardTask> tasks = tasksByColumn.getOrDefault(col.getBoardColumnID(), List.of());
 				List<TaskDTO> taskDTOs = tasks.stream()
 						.map(task -> {
 							TaskDTO taskDTO = new TaskDTO();
@@ -203,7 +210,7 @@ public class BoardService implements IBoardService {
 
 			return responseDTO;
 		} else {
-			throw new RuntimeException("Zugriff verweigert: Sie haben keine Berechtigung für dieses Board.");
+			throw new AccessDeniedException("Zugriff verweigert: Sie haben keine Berechtigung für dieses Board.");
 		}
 	}
 
@@ -229,10 +236,7 @@ public class BoardService implements IBoardService {
 		if (teamIDs.isEmpty()) {
 			boards = new java.util.ArrayList<>();
 		} else {
-			boards = boardRepository.findAll().stream()
-					.filter(b -> teamIDs.contains(b.getTeam().getTeamID()))
-					.filter(b -> !b.isDeleted())
-					.toList();
+			boards = boardRepository.findByTeam_TeamIDInAndDeletedFalse(teamIDs);
 		}
 
 		return boards.stream().map(board -> {
@@ -255,7 +259,7 @@ public class BoardService implements IBoardService {
 	@Transactional
 	public void deleteBoard(Long boardID) {
 		Board board = boardRepository.findById(boardID)
-				.orElseThrow(() -> new RuntimeException("Board nicht gefunden!"));
+				.orElseThrow(() -> new ResourceNotFoundException("Board nicht gefunden!"));
 
 		User currentUser = securityUtils.getCurrentUserEntity();
 		boolean isAdmin = currentUser.getRole() == UserRole.ORG_ADMIN;

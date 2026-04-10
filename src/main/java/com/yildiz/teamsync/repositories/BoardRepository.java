@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.yildiz.teamsync.entities.Board;
+import com.yildiz.teamsync.entities.BoardTask;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Long> {
@@ -15,4 +16,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     List<Board> findByTeam_TeamIDAndDeletedFalse(Long teamID);
     
     List<Board> findByTeam_TeamIDInAndDeletedFalse(List<Long> teamIDs);
+
+    List<BoardTask> findByBoardColumn_Board_BoardIDAndDeletedFalseOrderByPositionAsc(Long boardID);
+
 }

@@ -5,6 +5,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.yildiz.teamsync.entities.User;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
+import com.yildiz.teamsync.exceptions.UnauthorizedException;
 import com.yildiz.teamsync.repositories.UserRepository;
 import com.yildiz.teamsync.security.UserDetailsImpl;
 
@@ -32,9 +34,9 @@ public class SecurityUtils {
     public User getCurrentUserEntity() {
         Long id = getCurrentUserId();
         if (id == null) {
-            throw new RuntimeException("Kein authentifizierter Benutzer gefunden!");
+            throw new UnauthorizedException("Kein authentifizierter Benutzer gefunden!");
         }
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Benutzer mit ID " + id + " nicht in DB gefunden"));
+                .orElseThrow(() -> new ResourceNotFoundException("Benutzer mit ID " + id + " nicht in DB gefunden"));
     }
 }
