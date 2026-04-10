@@ -10,4 +10,6 @@ public interface BoardTaskRepository extends JpaRepository<BoardTask, Long>{
 	long countByBoardColumn_BoardColumnIDAndDeletedFalse(Long columnID);
 	long countByBoardColumn_Board_BoardIDAndDeletedFalse(Long boardID);
 	java.util.List<BoardTask> findByBoardColumn_BoardColumnIDAndDeletedFalseOrderByPositionAsc(Long columnID);
+
+	java.util.List<BoardTask> findByBoardColumn_Board_BoardIDAndDeletedFalseOrderByPositionAsc(Long boardID);
 }

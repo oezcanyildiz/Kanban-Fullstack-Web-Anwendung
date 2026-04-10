@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.yildiz.teamsync.config.RateLimitExceededException;
+import com.yildiz.teamsync.exceptions.RateLimitExceededException;
 import com.yildiz.teamsync.dto.ErrorResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,11 +44,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    //Zu viele Request
+    // 429
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<ErrorResponse> handlerRateLimitException(RateLimitExceededException ex){
         log.warn("Zu viele Requests: {}", ex.getMessage());
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+        return buildResponse(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
     }
 
     // 500
