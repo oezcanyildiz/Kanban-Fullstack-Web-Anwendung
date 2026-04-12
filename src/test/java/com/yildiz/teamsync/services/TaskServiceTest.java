@@ -8,6 +8,7 @@ import com.yildiz.teamsync.entities.*;
 import com.yildiz.teamsync.enums.TaskPriority;
 import com.yildiz.teamsync.enums.UserRole;
 import com.yildiz.teamsync.exceptions.BadRequestException;
+import com.yildiz.teamsync.exceptions.ResourceNotFoundException;
 import com.yildiz.teamsync.repositories.*;
 import com.yildiz.teamsync.services.impl.TaskService;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,6 +165,13 @@ class TaskServiceTest {
 
 
         assertThrows(BadRequestException.class,()-> taskService.createTask(dto));
+    }
+
+    @Test
+    void deleteTask_wennTasknichtgefunden_ResourceNotFoundTest(){
+        
+        when(taskRepository.findById(42L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, ()-> taskService.deleteTask(42L));
     }
 
 
